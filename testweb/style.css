@@ -1,0 +1,13 @@
+.error  {
+    color: #800000;
+    font-weight: bold;
+    background-color: #FFE0E0;
+}
+
+table {  border-spacing: 0;  border-collapse: collapse;  }
+table td  {  padding: 0 5px;  background-color: #F0F0F0;  border: 3px #FFFFFF solid;  }
+table th  {  padding: 0 5px;  background-color: #E0E0E0;  border: 3px #FFFFFF solid;  }
+
+table.group td,  table.group th  {  border-top: none;  border-bottom: none;  }
+table.group tr.group td, table.group tr td.group,
+table.group tr.group th, table.group tr th.group  {  border-top: 3px #FFFFFF solid;  }

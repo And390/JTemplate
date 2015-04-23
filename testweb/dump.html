@@ -1,0 +1,38 @@
+<$ include('/header.part.html'); $>
+
+
+<h2>HTTP Request dump</h2>
+
+<h3>Method</h3>
+${request.getMethod()}
+
+<h3>URL</h3>
+${request.getRequestURL()}
+
+<h3>Parameters</h3>
+<$ var pars = request.getParameterMap().keySet().toArray();
+   if (pars.length) { $>
+<table>
+    <tr>  <th>name</th>  <th>value</th>  </tr>
+    <$ for (var i=0; i< pars.length; i++) {
+       var vals = request.getParameterValues(pars[i]);
+       for (var j=0; j< vals.length; j++) { $>
+    <tr>  <td>${pars[i]}</td>  <td>${vals[j]}</td>  </tr>
+    <$ }} $>
+</table>
+<$ } else { $>
+empty
+<$ } $>
+
+<h3>Headers</h3>
+<table>
+    <tr>  <th>name</th>  <th>value</th>  </tr>
+    <$ var keys = java.util.Collections.list(request.getHeaderNames());
+       for (var i=0; i< keys.size(); i++) {
+       var vals = java.util.Collections.list(request.getHeaders(keys.get(i)));
+       for (var j=0; j< vals.size(); j++) { $>
+    <tr>  <td>${keys.get(i)}</td>  <td>${vals.get(j)}</td>  </tr>
+    <$ }} $>
+</table>
+
+<$ include('/footer.part.html'); $>

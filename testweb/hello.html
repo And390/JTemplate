@@ -1,0 +1,19 @@
+<$ include('header.part.html'); $>
+
+
+Hello${user ? " "+user.name : ""}!
+
+<form method="post" action="">
+    <$ if (user) { $>
+    Your IP: ${user.ip}<br>
+    <input type="submit" name="logout" value="logout">
+    <$ } else { $>
+    Please enter your name: <input type="text" name="login">
+    <input type="submit" value="login">
+    <$ } $>
+</form>
+
+<$ if (error) { $><br><span class="error">${error}</span><$ } $>
+
+
+<$ include('footer.part.html'); $>
