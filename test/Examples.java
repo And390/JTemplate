@@ -36,6 +36,17 @@ public class Examples
         }
     }
 
+    public static class ToString
+    {
+        public static void main(String[] args) throws Exception
+        {
+            String templateContent =
+                    "${ a = { toString: function() { return 'hello'; } }; a }";
+            Bindings values = new SimpleBindings ();
+            TemplateManager.parse(templateContent).eval(values, System.out);
+        }
+    }
+
     public static class Functions
     {
         public String quote(String string)  {  return "\""+string.replace('\"', '\'')+"\"";  }
