@@ -364,22 +364,86 @@ public class Util
     }
 
     public static String quote(String string)  {
-        return '"'+escape(string, '"')+'"';
+        return quote(string, new StringList()).toString();
+    }
+    public static RuntimeAppendable quote(String string, RuntimeAppendable result)  {
+        return escape(string, result.append('"'), new char[]{'\\', '"', '\t', '\r', '\n'},
+                new String[]{"\\\\", "\\\"", "\\t", "\\r", "\\n"}).append('"');
     }
 
-    public static RuntimeAppendable quote(String string, RuntimeAppendable appendable)  {
-        return escape(string, appendable.append('"'), '"').append('"');
+    public static String escape(String string)  {
+        return escape(string, new StringList ()).toString();
+    }
+    public static RuntimeAppendable escape(String string, RuntimeAppendable result)  {
+        return escape(string, result, new char[] { '\\', '\t', '\r', '\n' }, new String[] { "\\\\", "\\t", "\\r", "\\n" });
     }
 
     public static String escape(String string, char... chars)  {
-        string = string.replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n");
-        for (char c : chars)  string = string.replace(""+c, "\\"+c);
-        return string;
+        return escape(string, new StringList (), chars).toString();
+    }
+    public static RuntimeAppendable escape(String string, RuntimeAppendable result, char... chars)  {
+        chars = Arrays.copyOf(chars, chars.length+1);
+        chars[chars.length-1] = '\\';
+        return escape(string, result, "\\", chars);
+    }
+    public static RuntimeAppendable escape(String string, RuntimeAppendable result, String escapeChar, char... chars)  {
+        String[] replacers = new String [chars.length];
+        for (int i=0; i<chars.length; i++)  replacers[i] = escapeChar+chars[i];
+        return escape(string, result, chars, replacers);
     }
 
-    public static RuntimeAppendable escape(String string, RuntimeAppendable appendable, char... chars)  {
-        //TODO escape to appendable
-        return appendable.append(escape(string, chars));
+    public static RuntimeAppendable escape(String string, RuntimeAppendable result, char[] targets, String[] replacers)  {
+        escape(string, result, targets, replacers, 0);
+        return result;
+    }
+    private static void escape(String string, RuntimeAppendable result, char[] targets, String[] replacers, int index)  {
+        if (index==targets.length)  {
+            result.append(string);
+            return;
+        }
+        for (int i=0;; i++)  {
+            //    find next occurence of char that need to be escaped
+            int i0 = i;
+            i = string.indexOf(targets[index], i);
+            if (i==-1)  {
+                //    if end, add last part and exit
+                if (i0!=0)  string = string.substring(i0);
+                escape(string, result, targets, replacers, index+1);
+                break;
+            }
+            //    add part before finded char
+            if (i0!=i)  {
+                if (i0+1==i)  {
+                    //    escape rest specail chars in this one-char part
+                    char c = string.charAt(i0);
+                    for (int t=index; ; t++)
+                        if (t==targets.length)  {  result.append(c);  break;  }
+                        else if (c==targets[t])  {  result.append(replacers[t]);  break;  }
+                }
+                else  {
+                    //    recursively escape rest specail chars in this part
+                    String part = string.substring(i0, i);
+                    escape(part, result, targets, replacers, index+1);
+                }
+            }
+            //    add escaped char
+            result.append(replacers[index]);
+        }
+    }
+
+    private static class Test  {
+        public static void check(String source, String expect) throws Exception  {
+            String result = escape(source);
+            System.out.println(result);
+            if (!result.equals(expect))  throw new Exception ("is not equal to: "+expect);
+        }
+        public static void main(String[] args) throws Exception  {
+            check("", "");
+            check(" abc\f", " abc\f");
+            check("\\", "\\\\");
+            check("a\tb", "a\\tb");
+            check("xxx\rx\nyyy\\zzz", "xxx\\rx\\nyyy\\\\zzz");
+        }
     }
 
     public static String unescape(String string)  {
@@ -526,186 +590,6 @@ public class Util
     public static String parentPath(String path)
     {
         return path.substring(0, path.lastIndexOf('/')+1);
-    }
-
-
-    //----------------        форматирование таблицы        ----------------
-
-    // Форматирует таблицу вставляя нужное количество пробелов. Основная базовая версия функции.
-    // Таблица передается в виде массива, содержащего значения и разделители колонок и строк.
-    // Пробелы вставляются на место разделителей колонок (последняя колонка может его не иметь, тогда не будет и пробелов).
-    // Разделители ищутся равенством ссылок, можно использовать null. Количество колонок может быть разным в строках.
-    //   colEndLeft    разделитель колонок (c признаком левого выравнивания), в обрабатываемых строках будет заменен на пробелы
-    //   colEndRight   c признаком правого выравнивания, пробелы будут стоять слева от колоки
-    //   colEndMiddle  c признаком выравнивания по центру, пробелы будут стоять с обеих сторон (для этого может модифицировать первое значение колонки)
-    //   lineEnd       разделитель строк, в обрабатываемых строках остается как есть
-    //   strings       обрабатываемый массив строк
-    // если colEndMiddle и/или colEndRight равны colEndLeft, то будет использоваться левое выравнивание
-    public static void format(String colEndLeft, String colEndRight, String colEndMiddle, String lineEnd, String[] strings)
-    {
-        //    посчитать максимальное количество колонок
-        int maxColCount = 0;
-        int colCount = 0;
-        for (String string : strings)
-            if (string==colEndLeft || string==colEndRight || string==colEndMiddle)  {
-                colCount++;
-                if (colCount>maxColCount)  maxColCount = colCount;
-            }
-            else if (string==lineEnd)  {
-                colCount=0;
-            }
-
-        //    посчитать максимальные размеры колонок
-        int[] maxSize = new int [maxColCount];
-        int colIndex=0;
-        int colSize=0;
-        for (String string : strings)
-            if (string==lineEnd)  {
-                colIndex=0;
-                colSize=0;
-            }
-            else if (string==colEndLeft || string==colEndRight || string==colEndMiddle)  {
-                colIndex++;
-                colSize=0;
-            }
-            else if (colIndex<maxSize.length)  {
-                colSize += string.length();
-                if (colSize>maxSize[colIndex])  maxSize[colIndex] = colSize;
-            }
-
-        //    буфер для пробелов
-        int maxMaxSize = 0;
-        for (int size : maxSize)  if (maxMaxSize<size)  maxMaxSize = size;
-        char[] spaces = new char [maxMaxSize];
-        for (int i=0; i<maxMaxSize; i++)  spaces[i] = ' ';
-
-        //    вставить нужное количество пробелов
-        colIndex=0;
-        colSize=0;
-        int colStart=0;
-        for (int i=0; i<strings.length; i++)  {
-            String string = strings[i];
-            if (string==lineEnd)  {
-                colIndex=0;
-                colSize=0;
-                colStart=i+1;
-            }
-            else if (string==colEndLeft || string==colEndRight || string==colEndMiddle)  {
-                int size = maxSize[colIndex]-colSize;
-                if (string==colEndLeft)  {
-                    strings[i] = new String (spaces, 0, size);
-                }
-                else if (string==colEndRight)  {
-                    for (int j=i; j>colStart; j--)  strings[j] = strings[j-1];
-                    strings[colStart] = new String (spaces, 0, size);
-                }
-                else  {
-                    strings[colStart] = new String (spaces, 0, size/2) + strings[colStart];
-                    strings[i] = new String (spaces, 0, size-size/2);
-                }
-                colIndex++;
-                colSize=0;
-                colStart=i+1;
-            }
-            else if (colIndex<maxSize.length)  {
-                colSize += string.length();
-                if (colSize>maxSize[colIndex])  maxSize[colIndex] = colSize;
-            }
-        }
-    }
-
-    //     Следующие версии format сразу возвращают соединенную строку (formatToArray возвращает массив)
-
-    // вызывает формат с разделителями:
-    //   colEndLeft    null
-    //   colEndRight   "\r"
-    //   colEndMiddle  "\f"
-    //   linEnd        "\n"
-    public static String[] formatToArray(String... strings)
-    {
-        format("\t", "\r", "\f", "\n", strings);
-        return strings;
-    }
-    public static String format(String... strings)
-    {
-        return toString(formatToArray(strings));
-    }
-    public static String format(Collection<String> strings)  {  return format(strings.toArray(new String [strings.size()]));  }
-
-    // Версия функции, принимающая двумерный массив и массив значений для выравнивания колонок
-    //   colSep   разделитель колонок (помимо вырвавнивающих пробелов), добавляется после каждой колонки, кроме последней в строке
-    //   lineEnd  разделитель линий, добавляется в конце каждой строки
-    //   aligns   как выравнивать значения в каждой колонке, -1 - по левому краю, 0 - по центру, 1 - по правому
-    //            если равен null, выравнивания всегда по левому краю
-    //   rows     таблица значений в виде двумерного массива
-    public static String format(String colSep, String lineEnd, int[] aligns, Iterable<String[]> rows)
-    {
-        //    посчитать количество
-        int count=0;
-        for (String[] row : rows)  count += row.length==0 ? 1 : row.length*3 - 1 + 1;
-        //    заполнить массив
-        String[] strings = new String [count];
-        count=0;
-        for (String[] row : rows)  {
-            for (int i=0; i<row.length; i++)  {
-                strings[count++] = row[i];
-                if (i!=row.length-1)  strings[count++] = colSep;
-                strings[count++] = aligns==null || i>aligns.length || aligns[i]<0 ? null : aligns[i]>0 ? "\r" : "\f";
-            }
-            strings[count++] = lineEnd;
-        }
-        //    выполнить и вернуть результат
-        format(null, aligns==null ? null : "\r", aligns==null ? null : "\f", lineEnd, strings);
-        return toString(strings);
-    }
-
-    public static String format(String colSep, String lineEnd, int[] aligns, String[][] rows)  {
-        return format(colSep, lineEnd, aligns, new ArrayIterable<>(rows));
-    }
-
-    public static String format(String colSep, String lineEnd, Iterable<String[]> rows)  {
-        return format(colSep, lineEnd, null, rows);
-    }
-
-    // то же самое, но передается массив, количество колонок в строке определяется параметром aligns
-    public static String format(String colSep, String lineEnd, int[] aligns, String... values)
-    {
-        //    заполнить массив
-        String[] strings = new String [values.length*3];
-        for (int s=0, v=0; v<values.length; )  {
-            for (int c=0; c<aligns.length && v<values.length; c++)  {
-                strings[s++] = values[v++];
-                if (c!=aligns.length-1 && v!=values.length)  strings[s++] = colSep;
-                strings[s++] = aligns[c]<0 ? null : aligns[c]>0 ? "\r" : "\f";
-            }
-            strings[s++] = lineEnd;
-        }
-        //    выполнить и вернуть результат
-        format(null, "\r", "\f", lineEnd, strings);
-        return toString(strings);
-    }
-
-    public static class TestFormatTable
-    {
-        public static void main(String[] args) throws Exception
-        {
-            System.out.println(format(
-                    "h1", "  ", "\f", "h2", "\f", "\n",
-                    "xxx:", "  ", "\t", "123", "\r", "\n",
-                    "aaa bbb ccc:", "  ", "\t", "12345", "\r", "\n"));
-
-            System.out.println(format("  ", "\n", new int[] { -1, 1 }, new String[][] {
-                    new String [] { "h1", "h2", },
-                    new String [] { "xxx:", "123", },
-                    new String [] { "aaa bbb ccc:", "12345", },
-            }));
-
-            System.out.println(format("  ", "\n", new int[] { -1, 1 }, new String[] {
-                    "h1", "h2",
-                    "xxx:", "123",
-                    "aaa bbb ccc:", "12345"
-            }));
-        }
     }
 
 

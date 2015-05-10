@@ -58,7 +58,8 @@ public class ExampleFilter implements Filter
                 StringList buffer = new StringList ();
                 if (templateManager.evalIfExists(path, bindings, buffer))  {
                     //    write response
-                    for (String s : buffer)  response.getWriter().write(s);
+                    response.setContentType("text/html;charset="+encoding);
+                    response.getOutputStream().write(buffer.toString().getBytes(encoding));
                     return;
                 }
                 // else template is not found, default process causes 404 (if no one will process request)

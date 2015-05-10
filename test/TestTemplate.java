@@ -1,14 +1,12 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import junit.framework.Assert;
 import org.junit.Test;
 import ru.and390.template.Template;
 import ru.and390.template.TemplateManager;
 import ru.and390.utils.StringList;
 
 import javax.script.Bindings;
-import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import java.util.HashMap;
 

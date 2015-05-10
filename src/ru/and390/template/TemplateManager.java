@@ -120,7 +120,7 @@ public abstract class TemplateManager
 
     private static Template parse(String content, int[] pos, TemplateManager manager, String path) throws ScriptException
     {
-        StringList result = new StringList(initScript);
+        StringList buffer = new StringList(initScript);
         ArrayList<Template> childs = null;
         ArrayList<String> strings = new ArrayList<> ();
 
@@ -140,22 +140,21 @@ public abstract class TemplateManager
                 else if (i+1!=content.length() && content.charAt(i+1)=='{')  break;
                 else  i++;
             }
-            //TODO count \n
             //    добавить вставку текста до ${ или <$
             if (i!=i0 && (i0!=0 || i!=-1))  {
-                result.append(" context.outputResponsePart(").append(strings.size()).append(");");
+                buffer.append(" context.outputResponsePart(").append(strings.size()).append(");");
                 strings.add(content.substring(i0, i==-1 ? content.length() : i));
             }
             //    достигнут ли конец
             if (i==-1)  {  pos[0]=-1;  break;  }
             //    может быть это экранирование $
             if (content.startsWith("<$>", i) || content.startsWith("{$}", i))  {
-                result.append(" context.output('$');");
+                buffer.append(" context.output('$');");
                 i += 3;
                 continue;
             }
             else if (content.startsWith("${$}", i))  {
-                result.append(" context.output('$$');");
+                buffer.append(" context.output('$$');");
                 i += "${$}".length();
                 continue;
             }
@@ -214,7 +213,7 @@ public abstract class TemplateManager
                 //    дочерние шаблоны
                 if (tagged && content.charAt(i-1)==':' && i!=i0)  {
                     //    добавить скрипт
-                    result.append(content.substring(i0, i-1));
+                    buffer.append(content.substring(i0, i - 1));
                     //    рекурсивно разобрать дочерний шаблон
                     i += 2;
                     pos[0] = i;
@@ -222,7 +221,7 @@ public abstract class TemplateManager
                     childs.add(parse(content, pos, manager, path));
                     i = pos[0];
                     //    добавить скрипт, возвращающий шаблон
-                    result.append(" context.childs[").append(childs.size()-1).append("]");
+                    buffer.append(" context.childs[").append(childs.size()-1).append("]");
                     //    должен остановиться на открытых скобках, которые будут разбраны следующей итерацией цикла
                     if (i==-1)  throw new ScriptException ("Child template is not ends with <$:");
                     continue;
@@ -230,15 +229,15 @@ public abstract class TemplateManager
                 //    добавить скрипт мeжду скобками
                 if (i!=i0)
                     //    закрытое выражение, не возвращает значения - просто добавить скрипт
-                    if (expressionsOpen==-1 || tagged)  result.append(content.substring(i0, i));
+                    if (expressionsOpen==-1 || tagged)  buffer.append(content.substring(i0, i));
                     //    открытое выражение, которое возвращает значение - добавить скрипт, затем вывод значения
                     else  {
-                        result.append(content.substring(i0, expressionsOpen));
-                        if (endsWith(content, "#h", i))  result.append(" context.output(context.escapeHTML(")
+                        buffer.append(content.substring(i0, expressionsOpen));
+                        if (endsWith(content, "#h", i))  buffer.append(" context.output(context.escapeHTML(")
                                 .append(content.substring(expressionsOpen, i - "#h".length())).append("));");
-                        else if (endsWith(content, "#j", i))  result.append(" context.output(context.escapeJavaScript(")
+                        else if (endsWith(content, "#j", i))  buffer.append(" context.output(context.escapeJavaScript(")
                                 .append(content.substring(expressionsOpen, i - "#j".length())).append("));");
-                        else  result.append(" context.output(").append(content.substring(expressionsOpen, i)).append(");");
+                        else  buffer.append(" context.output(").append(content.substring(expressionsOpen, i)).append(");");
                     }
                 break;
             }
@@ -246,22 +245,25 @@ public abstract class TemplateManager
         }
 
         //    сформировать результат
-        Template template;
-        ScriptEngine engine;
         //    если динамических элементов нет, вернуть статичный шаблон
-        if (i0==start)
-            template = new StaticTemplate (content.substring(i0, i==-1 ? content.length() : i));
-        //    если можно скомпилировать, вернуть скомпилированный шаблон
-        else if ((engine = getEngine()) instanceof Compilable) {
-            engine.getContext().setAttribute(ScriptEngine.FILENAME, path, ScriptContext.ENGINE_SCOPE);
-            template = new CompiledTemplate (((Compilable) engine).compile(result.toString()), strings, childs, manager, path);
-            engine.getContext().removeAttribute(ScriptEngine.FILENAME, ScriptContext.ENGINE_SCOPE);
+        if (i0==start)  {
+            return new StaticTemplate (content.substring(i0, i==-1 ? content.length() : i));
         }
-        //    иначе обычный интерпретируемый
-        else
-            template = new ScriptTemplate (result.toString(), strings, childs, manager, path);
-
-        return template;
+        else  {
+            String script = buffer.toString();
+            ScriptEngine engine = getEngine();
+            //    если можно скомпилировать, вернуть скомпилированный шаблон
+            if (engine instanceof Compilable)
+                //    простой вариант для потоко-безопасного движка
+                if (engine==scriptEngine)
+                    return new CompiledTemplate (script, strings, childs, manager, path);
+                //    сложный вариант для не потоко-безопасного
+                else
+                    return new CompiledTemplateTL (script, strings, childs, manager, path);
+            //    иначе обычный интерпретируемый
+            else
+                return new ScriptTemplate (script, strings, childs, manager, path);
+        }
     }
 
     private static boolean endsWith(String string, String prefix, int offset)  {
@@ -271,6 +273,7 @@ public abstract class TemplateManager
 
     //                --------    template implamantations    --------
 
+    // Статичный шаблон, просто возвращающий фиксированный текст
     public static class StaticTemplate implements Template
     {
         public String content;
@@ -282,6 +285,7 @@ public abstract class TemplateManager
         }
     }
 
+    // Динамический шаблон
     public static abstract class BindedTemplate implements Template
     {
         private static final ThreadLocal<Context> currContext = new ThreadLocal<> ();
@@ -322,8 +326,8 @@ public abstract class TemplateManager
         {
             public TemplateManager manager;
             public String path;
-            public String[] parts;  //must be read-only for thread safe
-            public Template[] childs;  //must be read-only for thread safe
+            public String[] parts;  //must be read-only for thread safe, may be it better be private
+            public Template[] childs;  //must be read-only for thread safe, may be it better be private
             public Bindings bindings;
             public Appendable out;
 
@@ -438,6 +442,7 @@ public abstract class TemplateManager
         }
     }
 
+    // Интерпретируемый шаблон, хранит текст скрипта и выпоняет его при каждом вызове eval
     public static class ScriptTemplate extends BindedTemplate
     {
         public final String script;
@@ -453,18 +458,70 @@ public abstract class TemplateManager
         }
     }
 
+    // Скомпилированный шаблон, отличается от ScriptTemplate тем, что хранит скомпилированную версию скрипта
+    // Эта версия для потокобезопасной реализации ScriptEngine.
     public static class CompiledTemplate extends BindedTemplate
     {
-        public final CompiledScript script;  //TODO CompiledScript кажется не потоко-безопасный в зависимости от ScriptEngine
+        public final CompiledScript script;
 
-        public CompiledTemplate(CompiledScript script, Collection<String> strings, Collection<Template> childs, TemplateManager manager, String templatePath)  {
+        public CompiledTemplate(String script, Collection<String> strings, Collection<Template> childs,
+                                TemplateManager manager, String templatePath) throws ScriptException
+        {
             super(manager, templatePath, strings, childs);
-            this.script = script;
+            this.script = compile(scriptEngine, script, templatePath);
         }
 
         public void eval(ScriptContext context, Appendable out) throws ScriptException
         {
             script.eval(context);
         }
+    }
+
+    // Версия CompiledTemplate для не потоко-безопасной реализации ScriptEngine.
+    // Объект CompiledScript привязан к экземпляру ScriptEngine, следовательно, как и ScriptEngine
+    // не может использоваться параллельно (по крайней мере, следуя немногословной документации, реально может быть и может...)
+    // Возможно, это неэффективная реализация, если объекты CompiledScript достаточно тяжеловесны
+    // (тогда, более уместным может быть, например, пул)
+    public static class CompiledTemplateTL extends BindedTemplate
+    {
+        public final ThreadLocal<CompiledScript> script;
+
+        public CompiledTemplateTL(final String script, Collection<String> strings, Collection<Template> childs,
+                                  TemplateManager manager, final String templatePath)
+        {
+            super(manager, templatePath, strings, childs);
+            this.script = new ThreadLocal<CompiledScript> ()  {
+                @Override
+                protected CompiledScript initialValue()  {
+                    try  {  return compile(scriptEngineTL.get(), script, templatePath);  }
+                    catch (ScriptException e)  {  throw new ScriptExceptionWrap(e);  }
+                }
+            };
+        }
+
+        public void eval(ScriptContext context, Appendable out) throws ScriptException
+        {
+            try  {  script.get().eval(context);  }
+            catch (ScriptExceptionWrap e)  {  throw (ScriptException)e.getCause();  }
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            super.finalize();
+            script.remove();
+        }
+
+        private static class ScriptExceptionWrap extends RuntimeException
+        {
+            public ScriptExceptionWrap(ScriptException e)  {  super(e);  }
+        }
+    }
+
+    private static CompiledScript compile(ScriptEngine engine, String content, String path) throws ScriptException
+    {
+        engine.getContext().setAttribute(ScriptEngine.FILENAME, path, ScriptContext.ENGINE_SCOPE);
+        CompiledScript result = ((Compilable)engine).compile(content);
+        engine.getContext().removeAttribute(ScriptEngine.FILENAME, ScriptContext.ENGINE_SCOPE);
+        return result;
     }
 }
