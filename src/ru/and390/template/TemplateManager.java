@@ -24,38 +24,27 @@ import java.util.List;
  */
 public abstract class TemplateManager
 {
-    //    синглетон для ScriptEngine, плюс отдельный инстанс для каждого потока, если он не потоко-безопасный
+    //    синглетон для ScriptEngine
     private static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
     private static ScriptEngine scriptEngine;
-    private static ThreadLocal<ScriptEngine> scriptEngineTL;
 
     public synchronized static ScriptEngine getEngine()
     {
         if (scriptEngine!=null)  return scriptEngine;
-        if (scriptEngineTL!=null)  return scriptEngineTL.get();
-        //    первый вывзов - создать ScriptEngine
-        ScriptEngine newScriptEngine = scriptEngineManager.getEngineByName("JavaScript");
-        //    проверить, поддерживает ли он многопоточность, если да, то все ОК, сохранить
-        if (newScriptEngine.getFactory().getParameter("THREADING")!=null)
-            scriptEngine = newScriptEngine;
-        //    если нет, то инициализировать ThreadLocal-переменную
-        else  {
-            scriptEngineTL = new ThreadLocal<ScriptEngine>()  {
-                @Override
-                protected ScriptEngine initialValue()  {
-                    return scriptEngineManager.getEngineByName("JavaScript");
-                }
-            };
-            scriptEngineTL.set(newScriptEngine);  // сохранить уже созданный экземпляр для текущего потока
-        }
-        //    и вернуть
-        return newScriptEngine;
+        return scriptEngine = scriptEngineManager.getEngineByName("JavaScript");
     }
+
+    // По-хорошему, надо проверять scriptEngine.getFactory().getParameter("THREADING")!=null,
+    // нас устраивает минимальный уровень MULTITHREADED, иначе для null документация пишет:
+    // "The engine implementation is not thread safe, and cannot be used to execute scripts concurrently on multiple threads".
+    // Rhino возвращает MULTITHREADED, Nashorn - null, но его классы ScriptEngine и CompiledScript потокобезопасны
+    // (видимо, Nashorn могу бы возващать значение MULTITHREADED,
+    //  http://stackoverflow.com/questions/30140103/should-i-use-a-separate-scriptengine-and-compiledscript-instances-per-each-threa).
+    // То есть в итоге TemplateManager работает из предположения, что сам объект ScriptEngine потокобезопасен.
 
     public static void free()
     {
         BindedTemplate.currContext.remove();
-        if (scriptEngineTL!=null)  scriptEngineTL.remove();
     }
 
     // возвращает (создает на свое усмотрение) шаблон по указанному пути или null, если не найдено
@@ -254,12 +243,7 @@ public abstract class TemplateManager
             ScriptEngine engine = getEngine();
             //    если можно скомпилировать, вернуть скомпилированный шаблон
             if (engine instanceof Compilable)
-                //    простой вариант для потоко-безопасного движка
-                if (engine==scriptEngine)
-                    return new CompiledTemplate (script, strings, childs, manager, path);
-                //    сложный вариант для не потоко-безопасного
-                else
-                    return new CompiledTemplateTL (script, strings, childs, manager, path);
+                return new CompiledTemplate (script, strings, childs, manager, path);
             //    иначе обычный интерпретируемый
             else
                 return new ScriptTemplate (script, strings, childs, manager, path);
@@ -474,46 +458,6 @@ public abstract class TemplateManager
         public void eval(ScriptContext context, Appendable out) throws ScriptException
         {
             script.eval(context);
-        }
-    }
-
-    // Версия CompiledTemplate для не потоко-безопасной реализации ScriptEngine.
-    // Объект CompiledScript привязан к экземпляру ScriptEngine, следовательно, как и ScriptEngine
-    // не может использоваться параллельно (по крайней мере, следуя немногословной документации, реально может быть и может...)
-    // Возможно, это неэффективная реализация, если объекты CompiledScript достаточно тяжеловесны
-    // (тогда, более уместным может быть, например, пул)
-    public static class CompiledTemplateTL extends BindedTemplate
-    {
-        public final ThreadLocal<CompiledScript> script;
-
-        public CompiledTemplateTL(final String script, Collection<String> strings, Collection<Template> childs,
-                                  TemplateManager manager, final String templatePath)
-        {
-            super(manager, templatePath, strings, childs);
-            this.script = new ThreadLocal<CompiledScript> ()  {
-                @Override
-                protected CompiledScript initialValue()  {
-                    try  {  return compile(scriptEngineTL.get(), script, templatePath);  }
-                    catch (ScriptException e)  {  throw new ScriptExceptionWrap(e);  }
-                }
-            };
-        }
-
-        public void eval(ScriptContext context, Appendable out) throws ScriptException
-        {
-            try  {  script.get().eval(context);  }
-            catch (ScriptExceptionWrap e)  {  throw (ScriptException)e.getCause();  }
-        }
-
-        @Override
-        protected void finalize() throws Throwable {
-            super.finalize();
-            script.remove();
-        }
-
-        private static class ScriptExceptionWrap extends RuntimeException
-        {
-            public ScriptExceptionWrap(ScriptException e)  {  super(e);  }
         }
     }
 
