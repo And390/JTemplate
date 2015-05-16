@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * TemplateManager, реализующий потокобезопасное кэширование шаблонов в методе getTemplate,
- * загрузку контента абстрактному методу readContent,
+ * TemplateManager, СЂРµР°Р»РёР·СѓСЋС‰РёР№ РїРѕС‚РѕРєРѕР±РµР·РѕРїР°СЃРЅРѕРµ РєСЌС€РёСЂРѕРІР°РЅРёРµ С€Р°Р±Р»РѕРЅРѕРІ РІ РјРµС‚РѕРґРµ getTemplate,
+ * Р·Р°РіСЂСѓР·РєСѓ РєРѕРЅС‚РµРЅС‚Р° Р°Р±СЃС‚СЂР°РєС‚РЅРѕРјСѓ РјРµС‚РѕРґСѓ readContent,
  * And390 - 20.04.2015
  */
 public abstract class CacheTemplateManager extends TemplateManager
 {
     private ConcurrentHashMap<String, TemplateWrapper> cache = new ConcurrentHashMap<> ();
 
-    // Обертки нужны исключительно для синхронизации, чтобы реализовать double-check locking
+    // РћР±РµСЂС‚РєРё РЅСѓР¶РЅС‹ РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅРѕ РґР»СЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё, С‡С‚РѕР±С‹ СЂРµР°Р»РёР·РѕРІР°С‚СЊ double-check locking
     private static class TemplateWrapper  {
         volatile Template template;
         TemplateWrapper()  {}
@@ -23,23 +23,23 @@ public abstract class CacheTemplateManager extends TemplateManager
     public Template getTemplate(String path) throws Exception
     {
         path = checkPath(path);
-        //    достать из кэша объект-обертку, если нет создать (с пустым шаблоном)
+        //    РґРѕСЃС‚Р°С‚СЊ РёР· РєСЌС€Р° РѕР±СЉРµРєС‚-РѕР±РµСЂС‚РєСѓ, РµСЃР»Рё РЅРµС‚ СЃРѕР·РґР°С‚СЊ (СЃ РїСѓСЃС‚С‹Рј С€Р°Р±Р»РѕРЅРѕРј)
         TemplateWrapper wrapper = cache.get(path);
         if (wrapper==null)  {
             wrapper = new TemplateWrapper ();
-            TemplateWrapper concurrent = cache.putIfAbsent(path, wrapper);  // в кэше временно пустая обертка
+            TemplateWrapper concurrent = cache.putIfAbsent(path, wrapper);  // РІ РєСЌС€Рµ РІСЂРµРјРµРЅРЅРѕ РїСѓСЃС‚Р°СЏ РѕР±РµСЂС‚РєР°
             if (concurrent!=null)  wrapper = concurrent;
         }
-        //    если нет шаблона в обертке, синхронизированно загрузить его (double-check locking)
+        //    РµСЃР»Рё РЅРµС‚ С€Р°Р±Р»РѕРЅР° РІ РѕР±РµСЂС‚РєРµ, СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРЅРѕ Р·Р°РіСЂСѓР·РёС‚СЊ РµРіРѕ (double-check locking)
         Template template = wrapper.template;
         if (template==null)
             synchronized (wrapper)  {
                 template = wrapper.template;
-                if (template==null)  {  // при параллельных запросах одинаковых path, только первый поток получит здесь null
-                    String content = readContent(path);  // прочитать контент
-                    template = content==null ? NO_TEMPLATE : parseAndPut(content, this, path);  // разобрать, если найден, иначе спец константа
-                    wrapper.template = template;  // записать значение в обертку
-                    if (content==null && !cacheAbsent)  cache.remove(path);  // если не найдено и не кэшируем промахи, удалить из кэша
+                if (template==null)  {  // РїСЂРё РїР°СЂР°Р»Р»РµР»СЊРЅС‹С… Р·Р°РїСЂРѕСЃР°С… РѕРґРёРЅР°РєРѕРІС‹С… path, С‚РѕР»СЊРєРѕ РїРµСЂРІС‹Р№ РїРѕС‚РѕРє РїРѕР»СѓС‡РёС‚ Р·РґРµСЃСЊ null
+                    String content = readContent(path);  // РїСЂРѕС‡РёС‚Р°С‚СЊ РєРѕРЅС‚РµРЅС‚
+                    template = content==null ? NO_TEMPLATE : parseAndPut(content, this, path);  // СЂР°Р·РѕР±СЂР°С‚СЊ, РµСЃР»Рё РЅР°Р№РґРµРЅ, РёРЅР°С‡Рµ СЃРїРµС† РєРѕРЅСЃС‚Р°РЅС‚Р°
+                    wrapper.template = template;  // Р·Р°РїРёСЃР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ РІ РѕР±РµСЂС‚РєСѓ
+                    if (content==null && !cacheAbsent)  cache.remove(path);  // РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ Рё РЅРµ РєСЌС€РёСЂСѓРµРј РїСЂРѕРјР°С…Рё, СѓРґР°Р»РёС‚СЊ РёР· РєСЌС€Р°
                 }
             }
         return template==NO_TEMPLATE ? null : template;
@@ -57,7 +57,7 @@ public abstract class CacheTemplateManager extends TemplateManager
         cache.clear();
     }
 
-    // читает и возвращает контент по указанному пути, если не найдено, возвращает null
+    // С‡РёС‚Р°РµС‚ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕРЅС‚РµРЅС‚ РїРѕ СѓРєР°Р·Р°РЅРЅРѕРјСѓ РїСѓС‚Рё, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ, РІРѕР·РІСЂР°С‰Р°РµС‚ null
     protected abstract String readContent(String path) throws IOException;
 
 

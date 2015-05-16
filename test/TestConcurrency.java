@@ -72,15 +72,15 @@ public class TestConcurrency
         for (int i=0; i<threads.length; i++)  threads[i].join();
     }
 
-    // Конкурентное использование Bindings движком обычно не корректно.
-    // Во-первых нужно потоко-безопасным должен быть сам Bindings. Во-вторых, реализация ScriptEngine.
-    // Для Rhino (.getFactory().getParameter("THREADING")=MULTITHREADED):
+    // РљРѕРЅРєСѓСЂРµРЅС‚РЅРѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ Bindings РґРІРёР¶РєРѕРј РѕР±С‹С‡РЅРѕ РЅРµ РєРѕСЂСЂРµРєС‚РЅРѕ.
+    // Р’Рѕ-РїРµСЂРІС‹С… РЅСѓР¶РЅРѕ РїРѕС‚РѕРєРѕ-Р±РµР·РѕРїР°СЃРЅС‹Рј РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃР°Рј Bindings. Р’Рѕ-РІС‚РѕСЂС‹С…, СЂРµР°Р»РёР·Р°С†РёСЏ ScriptEngine.
+    // Р”Р»СЏ Rhino (.getFactory().getParameter("THREADING")=MULTITHREADED):
     //    The engine implementation is internally thread-safe and scripts may execute concurrently
     //    although effects of script execution on one thread may be visible to scripts on other threads (!)
-    // и в итоге код ниже не выводит корректное число из-за того, что a++ не атомарно.
-    // Для Nashorn (.getFactory().getParameter("THREADING")=null):
+    // Рё РІ РёС‚РѕРіРµ РєРѕРґ РЅРёР¶Рµ РЅРµ РІС‹РІРѕРґРёС‚ РєРѕСЂСЂРµРєС‚РЅРѕРµ С‡РёСЃР»Рѕ РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ a++ РЅРµ Р°С‚РѕРјР°СЂРЅРѕ.
+    // Р”Р»СЏ Nashorn (.getFactory().getParameter("THREADING")=null):
     //    The engine implementation is not thread safe, and cannot be used to execute scripts concurrently on multiple threads
-    // это код кидает Exception
+    // СЌС‚Рѕ РєРѕРґ РєРёРґР°РµС‚ Exception
     @Test
     public void sharedBindingsError() throws Exception
     {
@@ -93,7 +93,7 @@ public class TestConcurrency
             threads[i] = new Thread () {
                 @Override
                 public void run()  {
-                    try  {  jsEngine.eval("for (var i=0; i<1000; i++)  a++;", bindings);  // a++ и использование i не потокобезопасны
+                    try  {  jsEngine.eval("for (var i=0; i<1000; i++)  a++;", bindings);  // a++ Рё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ i РЅРµ РїРѕС‚РѕРєРѕР±РµР·РѕРїР°СЃРЅС‹
                     } catch (Exception e)  {  throw new RuntimeException (e);  }
                 }
             };
@@ -104,7 +104,7 @@ public class TestConcurrency
         System.out.println(bindings.get("a"));
     }
 
-    // Параллельное выполнение разных шаблонов (текст не должен смешиваться)
+    // РџР°СЂР°Р»Р»РµР»СЊРЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ СЂР°Р·РЅС‹С… С€Р°Р±Р»РѕРЅРѕРІ (С‚РµРєСЃС‚ РЅРµ РґРѕР»Р¶РµРЅ СЃРјРµС€РёРІР°С‚СЊСЃСЏ)
     @Test
     public void templates() throws Exception
     {

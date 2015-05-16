@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
- * Реализует CacheTemplateManager, загружая контент из файлов по указанным путям
+ * Р РµР°Р»РёР·СѓРµС‚ CacheTemplateManager, Р·Р°РіСЂСѓР¶Р°СЏ РєРѕРЅС‚РµРЅС‚ РёР· С„Р°Р№Р»РѕРІ РїРѕ СѓРєР°Р·Р°РЅРЅС‹Рј РїСѓС‚СЏРј
  * And390 - 20.04.2015
  */
 public class FileTemplateManager extends CacheTemplateManager

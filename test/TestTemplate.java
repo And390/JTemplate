@@ -134,7 +134,7 @@ public class TestTemplate
         sources.put("/dir2/file1", "two.one");
         sources.put("/dir2/file2", "two.two");
         String source = "${include('file1');} ${include('./file2');} ${include('../file1');} ${include('/file2');} ${include('../dir2/file1');} ${include('/dir2/file2');}";
-        TemplateManager.parse(source, manager, "/dir1/").eval(new SimpleBindings(), result);  // путой путь относительно каталога, т.к. он не важен
+        TemplateManager.parse(source, manager, "/dir1/").eval(new SimpleBindings(), result);  // РїСѓС‚РѕР№ РїСѓС‚СЊ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєР°С‚Р°Р»РѕРіР°, С‚.Рє. РѕРЅ РЅРµ РІР°Р¶РµРЅ
         assertEquals("one.one one.two one two two.one two.two", result.toString());
 
         result.clear();

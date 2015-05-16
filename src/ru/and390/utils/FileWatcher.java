@@ -14,8 +14,8 @@ import java.util.Set;
 import static java.nio.file.StandardWatchEventKinds.*;
 
 /**
- * Мониторит изменения файлов в каталоге (рекурсивно в подкаталогах)
- * Пользовательский код должен использовать интерфейс Listener
+ * РњРѕРЅРёС‚РѕСЂРёС‚ РёР·РјРµРЅРµРЅРёСЏ С„Р°Р№Р»РѕРІ РІ РєР°С‚Р°Р»РѕРіРµ (СЂРµРєСѓСЂСЃРёРІРЅРѕ РІ РїРѕРґРєР°С‚Р°Р»РѕРіР°С…)
+ * РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ РєРѕРґ РґРѕР»Р¶РµРЅ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РёРЅС‚РµСЂС„РµР№СЃ Listener
  * User: And390
  * Date: 08.02.14
  * Time: 22:40
@@ -23,7 +23,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public class FileWatcher implements AutoCloseable
 {
     public interface Listener  {
-        void changed(String path);  //пути относительно переданного base, всегда начинающиеся с '/', кроме базового, который равен ''
+        void changed(String path);  //РїСѓС‚Рё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РїРµСЂРµРґР°РЅРЅРѕРіРѕ base, РІСЃРµРіРґР° РЅР°С‡РёРЅР°СЋС‰РёРµСЃСЏ СЃ '/', РєСЂРѕРјРµ Р±Р°Р·РѕРІРѕРіРѕ, РєРѕС‚РѕСЂС‹Р№ СЂР°РІРµРЅ ''
     }
 
     protected static class ListenerItem  {
@@ -44,7 +44,7 @@ public class FileWatcher implements AutoCloseable
     private Set<String> ignore = new HashSet<> ();
 
     private WatchService watchService;
-    private Map<WatchKey, String> watchPaths;  // в качестве значений пути с base
+    private Map<WatchKey, String> watchPaths;  // РІ РєР°С‡РµСЃС‚РІРµ Р·РЅР°С‡РµРЅРёР№ РїСѓС‚Рё СЃ base
     private Thread watchThread;
 
     public FileWatcher(String base_, String... ignore_) throws IOException
@@ -54,7 +54,7 @@ public class FileWatcher implements AutoCloseable
             if (ign.startsWith("/"))  throw new IllegalArgumentException("Absolute paths is not supported");
             else  ignore.add(base_+"/"+ign);
 
-        //    обнаружение изменений файлов
+        //    РѕР±РЅР°СЂСѓР¶РµРЅРёРµ РёР·РјРµРЅРµРЅРёР№ С„Р°Р№Р»РѕРІ
         watchService = FileSystems.getDefault().newWatchService();
         watchPaths = new HashMap<>();
         watchDir(base);

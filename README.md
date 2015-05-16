@@ -68,14 +68,14 @@ To directly print values from scripts you can use `output` function
 ```
 There are also exists `context` object provided by Java Scripting engines. It extends by template engine with some properties:
 
-|              |   |
-|--------------| - |
-|`context.path`| path to template (passed from Java, can be null) |
-|`context.manager`|`TemplateManager` instance (also can be null)|
-|`context.bindings`|bindings passed from Java|
-|`context.out`|instance of Java `Appendable` represents a template result output|
-|`context.include`|global `include` function just wraps it|
-|`context.output`|global `output` function just wraps it|
+| js object | description |
+| --------- | ----------- |
+| `context.path`| path to template (passed from Java, can be null) |
+| `context.manager` | `TemplateManager` instance (also can be null) |
+| `context.bindings` | bindings passed from Java |
+| `context.out` | instance of Java `Appendable` represents a template result output |
+| `context.include` | global `include` function just wraps it |
+| `context.output` | global `output` function just wraps it |
 
 Additionally, it is one powerfull feature, **child templates**. You can define a subtemplate inside base template (and do it recursively in subtemplate) and use it multiple times wherever you want.
 ```text

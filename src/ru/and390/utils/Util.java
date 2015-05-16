@@ -24,7 +24,7 @@ public class Util
 
     //----------------        strings        ----------------
 
-    // в отличие от стандартного indexOf возвращает длину строки, если символ не найден
+    // РІ РѕС‚Р»РёС‡РёРµ РѕС‚ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ indexOf РІРѕР·РІСЂР°С‰Р°РµС‚ РґР»РёРЅСѓ СЃС‚СЂРѕРєРё, РµСЃР»Рё СЃРёРјРІРѕР» РЅРµ РЅР°Р№РґРµРЅ
     public static int indexOf(String string, char target, int offset)  {
         int result = string.indexOf(target, offset);
         return result==-1 ? string.length() : result;
@@ -45,7 +45,7 @@ public class Util
     }
     public static int indexOfWord(String source, String target)  {  return indexOfWord(source, target, 0);  }
 
-    // считает количество указанных символов в строке
+    // СЃС‡РёС‚Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СѓРєР°Р·Р°РЅРЅС‹С… СЃРёРјРІРѕР»РѕРІ РІ СЃС‚СЂРѕРєРµ
     public static int count(String string, char target)
     {
         int n=0;
@@ -57,7 +57,7 @@ public class Util
         return n;
     }
 
-    // считает количество подстрок в строке
+    // СЃС‡РёС‚Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРґСЃС‚СЂРѕРє РІ СЃС‚СЂРѕРєРµ
     public static int count(String string, String target)
     {
         int n=0;
@@ -70,10 +70,10 @@ public class Util
     }
 
     //    slice
-    //разбивает строку по заданному символу-разделителю;
-    // если символ не встречается, то результатом будет целая строка, как частный вариант - пустая;
-    // если разделители идут подряд, между ними будут пустые части, аналогично, если разделитель стоит в конце;
-    //аналог стандартного split, но тот игнорирует разделители в конце
+    //СЂР°Р·Р±РёРІР°РµС‚ СЃС‚СЂРѕРєСѓ РїРѕ Р·Р°РґР°РЅРЅРѕРјСѓ СЃРёРјРІРѕР»Сѓ-СЂР°Р·РґРµР»РёС‚РµР»СЋ;
+    // РµСЃР»Рё СЃРёРјРІРѕР» РЅРµ РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ, С‚Рѕ СЂРµР·СѓР»СЊС‚Р°С‚РѕРј Р±СѓРґРµС‚ С†РµР»Р°СЏ СЃС‚СЂРѕРєР°, РєР°Рє С‡Р°СЃС‚РЅС‹Р№ РІР°СЂРёР°РЅС‚ - РїСѓСЃС‚Р°СЏ;
+    // РµСЃР»Рё СЂР°Р·РґРµР»РёС‚РµР»Рё РёРґСѓС‚ РїРѕРґСЂСЏРґ, РјРµР¶РґСѓ РЅРёРјРё Р±СѓРґСѓС‚ РїСѓСЃС‚С‹Рµ С‡Р°СЃС‚Рё, Р°РЅР°Р»РѕРіРёС‡РЅРѕ, РµСЃР»Рё СЂР°Р·РґРµР»РёС‚РµР»СЊ СЃС‚РѕРёС‚ РІ РєРѕРЅС†Рµ;
+    //Р°РЅР°Р»РѕРі СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ split, РЅРѕ С‚РѕС‚ РёРіРЅРѕСЂРёСЂСѓРµС‚ СЂР°Р·РґРµР»РёС‚РµР»Рё РІ РєРѕРЅС†Рµ
 
     public static <T extends Throwable> void slice(String string, char separator, Consumer<String, T> handler) throws T
     {
@@ -87,9 +87,9 @@ public class Util
 
     public static String[] slice(String string, char separator)
     {
-        //    посчитать количество
+        //    РїРѕСЃС‡РёС‚Р°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ
         int count = count(string, separator) + 1;
-        //    установить значения и вернуть
+        //    СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ Рё РІРµСЂРЅСѓС‚СЊ
         final String[] result = new String [count];
         slice(string, separator, new Consumer.R<String> ()  {
             int i = 0;
@@ -110,9 +110,9 @@ public class Util
 
     public static String[] slice(String string, String separator)
     {
-        //    посчитать количество
+        //    РїРѕСЃС‡РёС‚Р°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ
         int count = count(string, separator) + 1;
-        //    установить значения и вернуть
+        //    СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ Рё РІРµСЂРЅСѓС‚СЊ
         final String[] result = new String [count];
         slice(string, separator, new Consumer.R<String> ()  {
             int i = 0;
@@ -148,7 +148,7 @@ public class Util
         }
     }
 
-    //    sliceWords делит по пробельным символам; слова всегда не пустые
+    //    sliceWords РґРµР»РёС‚ РїРѕ РїСЂРѕР±РµР»СЊРЅС‹Рј СЃРёРјРІРѕР»Р°Рј; СЃР»РѕРІР° РІСЃРµРіРґР° РЅРµ РїСѓСЃС‚С‹Рµ
 
     public static <T extends Throwable> void sliceWords(String string, Consumer<String, T> consumer) throws T
     {
@@ -162,10 +162,10 @@ public class Util
 
     public static String[] sliceWords(String string)
     {
-        //    посчитать количество
+        //    РїРѕСЃС‡РёС‚Р°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ
         Consumer.Counter<String> counter = new Consumer.Counter<> ();
         sliceWords(string, counter);
-        //    установить значения и вернуть
+        //    СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ Рё РІРµСЂРЅСѓС‚СЊ
         final String[] result = new String [counter.count];
         sliceWords(string, new Consumer.R<String> ()  {
             int i = 0;
@@ -188,7 +188,7 @@ public class Util
     }
 
     //    sliceRows
-    //делит по разделителям строк, корректно обрабатывает разделители строк '\r', '\n' и '\r\n\'
+    //РґРµР»РёС‚ РїРѕ СЂР°Р·РґРµР»РёС‚РµР»СЏРј СЃС‚СЂРѕРє, РєРѕСЂСЂРµРєС‚РЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЂР°Р·РґРµР»РёС‚РµР»Рё СЃС‚СЂРѕРє '\r', '\n' Рё '\r\n\'
 
     public static <T extends Throwable> void sliceRows(String string, Consumer<String, T> consumer) throws T
     {
@@ -197,9 +197,9 @@ public class Util
             return;
         }
         for (int in=-1, ir=-1; ; )  {
-            int i0=ir+1;  //начало новой строки, будет установлено в Min(ir+1, in+1) или в in+1 для случая '\r\n'
-            if (ir<=in)  {  ir = indexOf(string, '\r', ir+1);  }            //для ir<in и на первой итерации (ir=in) надо передвинуть ir
-            if (in<=i0)  {  i0=in+1;  in = indexOf(string, '\n', in+1);  }  //для in<ir, in=ir+1 (случай '\r\n') и первой итерации надо передвинуть in
+            int i0=ir+1;  //РЅР°С‡Р°Р»Рѕ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё, Р±СѓРґРµС‚ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РІ Min(ir+1, in+1) РёР»Рё РІ in+1 РґР»СЏ СЃР»СѓС‡Р°СЏ '\r\n'
+            if (ir<=in)  {  ir = indexOf(string, '\r', ir+1);  }            //РґР»СЏ ir<in Рё РЅР° РїРµСЂРІРѕР№ РёС‚РµСЂР°С†РёРё (ir=in) РЅР°РґРѕ РїРµСЂРµРґРІРёРЅСѓС‚СЊ ir
+            if (in<=i0)  {  i0=in+1;  in = indexOf(string, '\n', in+1);  }  //РґР»СЏ in<ir, in=ir+1 (СЃР»СѓС‡Р°Р№ '\r\n') Рё РїРµСЂРІРѕР№ РёС‚РµСЂР°С†РёРё РЅР°РґРѕ РїРµСЂРµРґРІРёРЅСѓС‚СЊ in
             consumer.process(string.substring(i0, ir < in ? ir : in));
             if (ir==string.length() && in==string.length())  break;
         }
@@ -232,21 +232,21 @@ public class Util
     }
 
 
-    //    аналог javascript join
+    //    Р°РЅР°Р»РѕРі javascript join
 
     public static String toString(Iterable<String> strings, String separator)
     {
-        //    посчитать длину целиком и количество элементов, проверить null-значения
+        //    РїРѕСЃС‡РёС‚Р°С‚СЊ РґР»РёРЅСѓ С†РµР»РёРєРѕРј Рё РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ, РїСЂРѕРІРµСЂРёС‚СЊ null-Р·РЅР°С‡РµРЅРёСЏ
         int len = 0;
         int size = 0;
         for (String string : strings)
             if (string!=null)  {  len += string.length() + separator.length();  size++;  }
             else  throw new NullPointerException ("toString is not support nulls");
-        //    если элементов ноль или один, эффективней сразу вернуть результат
+        //    РµСЃР»Рё СЌР»РµРјРµРЅС‚РѕРІ РЅРѕР»СЊ РёР»Рё РѕРґРёРЅ, СЌС„С„РµРєС‚РёРІРЅРµР№ СЃСЂР°Р·Сѓ РІРµСЂРЅСѓС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚
         if (size==0)  return "";
         if (size==1)  return strings.iterator().next();
-        len -= separator.length();  //теперь можно удалить последний разделитель
-        //    выделить буфер и скопировать туда байты
+        len -= separator.length();  //С‚РµРїРµСЂСЊ РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ РїРѕСЃР»РµРґРЅРёР№ СЂР°Р·РґРµР»РёС‚РµР»СЊ
+        //    РІС‹РґРµР»РёС‚СЊ Р±СѓС„РµСЂ Рё СЃРєРѕРїРёСЂРѕРІР°С‚СЊ С‚СѓРґР° Р±Р°Р№С‚С‹
         char[] buffer = new char [len];
         int destOffset = 0;
         for (String string : strings)  {
@@ -281,7 +281,7 @@ public class Util
     }
 
 
-    //    прочие вспомогательные функции со строками
+    //    РїСЂРѕС‡РёРµ РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё СЃРѕ СЃС‚СЂРѕРєР°РјРё
 
     public static String notNull(String string)  {  return string!=null ? string : "";  }
 
@@ -573,7 +573,7 @@ public class Util
         return new String (buffer);
     }
 
-    //        ----    работа с путями    ----
+    //        ----    СЂР°Р±РѕС‚Р° СЃ РїСѓС‚СЏРјРё    ----
 
     public static boolean startsWithPath(String path, String prefix, int offset)
     {
@@ -683,17 +683,17 @@ public class Util
     public static ArrayList<File> listFiles(String filename)  {  return listFiles(new File (filename));  }
 
     public static String incFileName(String fileName, boolean lastExtension)  {
-        //    определить позицию имени файла (последний слэш)
+        //    РѕРїСЂРµРґРµР»РёС‚СЊ РїРѕР·РёС†РёСЋ РёРјРµРЅРё С„Р°Р№Р»Р° (РїРѕСЃР»РµРґРЅРёР№ СЃР»СЌС€)
         int i0 = fileName.lastIndexOf('/') + 1;
         if (!File.separator.equals("/"))  {
             int i02 = fileName.lastIndexOf(File.separator) + 1;
             if (i02>i0)  i0 = i02;
         }
-        //    определить позицию расширения файла (первая точка в имени файла)
+        //    РѕРїСЂРµРґРµР»РёС‚СЊ РїРѕР·РёС†РёСЋ СЂР°СЃС€РёСЂРµРЅРёСЏ С„Р°Р№Р»Р° (РїРµСЂРІР°СЏ С‚РѕС‡РєР° РІ РёРјРµРЅРё С„Р°Р№Р»Р°)
         int i;
         if (lastExtension)  {  i = fileName.lastIndexOf('.');  if (i<i0)  i = fileName.length();  }
         else  i = indexOf(fileName, '.', i0);
-        //    найти индекс в скобках
+        //    РЅР°Р№С‚Рё РёРЅРґРµРєСЃ РІ СЃРєРѕР±РєР°С…
         if (i>=4 && fileName.charAt(i-1)==')')  {
             int i2 = fileName.lastIndexOf('(', i-2);
             if (i2>i0)
@@ -701,7 +701,7 @@ public class Util
                         return fileName.substring(0, i2+1) + (count+1) + fileName.substring(i-1);  }
                 catch (NumberFormatException e)  {}
         }
-        //    если не найден, вернуть с индексом 2
+        //    РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ, РІРµСЂРЅСѓС‚СЊ СЃ РёРЅРґРµРєСЃРѕРј 2
         return fileName.substring(0, i) + " (2)" + fileName.substring(i);
     }
     public static String incFileName(String fileName)  {  return incFileName(fileName, false);  }
@@ -712,17 +712,17 @@ public class Util
     }
 
     public static String addFileName(String fileName, String suffix, boolean lastExtension)  {
-        //    определить позицию имени файла (последний слэш)
+        //    РѕРїСЂРµРґРµР»РёС‚СЊ РїРѕР·РёС†РёСЋ РёРјРµРЅРё С„Р°Р№Р»Р° (РїРѕСЃР»РµРґРЅРёР№ СЃР»СЌС€)
         int i0 = fileName.lastIndexOf('/') + 1;
         if (!File.separator.equals("/"))  {
             int i02 = fileName.lastIndexOf(File.separator) + 1;
             if (i02>i0)  i0 = i02;
         }
-        //    определить позицию расширения файла (первая точка в имени файла)
+        //    РѕРїСЂРµРґРµР»РёС‚СЊ РїРѕР·РёС†РёСЋ СЂР°СЃС€РёСЂРµРЅРёСЏ С„Р°Р№Р»Р° (РїРµСЂРІР°СЏ С‚РѕС‡РєР° РІ РёРјРµРЅРё С„Р°Р№Р»Р°)
         int i;
         if (lastExtension)  {  i = fileName.lastIndexOf('.');  if (i<i0)  i = fileName.length();  }
         else  i = indexOf(fileName, '.', i0);
-        //    добавить суффикс к имени
+        //    РґРѕР±Р°РІРёС‚СЊ СЃСѓС„С„РёРєСЃ Рє РёРјРµРЅРё
         return fileName.substring(0, i) + suffix + fileName.substring(i);
     }
     public static String addFileName(String fileName, String suffix)  {  return addFileName(fileName, suffix, false);  }

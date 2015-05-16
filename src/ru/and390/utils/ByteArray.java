@@ -14,8 +14,8 @@ public class ByteArray {
         void sourceFinded(byte[] source, int begin, int end)  throws Exception;
     }
 
-    //в source ищет open и следующий за ним close, и для каждого найденного куска, заключенного в open и close,
-    //  вызывает handleTarget, для оставшихся кусков вызывает handeSource
+    //РІ source РёС‰РµС‚ open Рё СЃР»РµРґСѓСЋС‰РёР№ Р·Р° РЅРёРј close, Рё РґР»СЏ РєР°Р¶РґРѕРіРѕ РЅР°Р№РґРµРЅРЅРѕРіРѕ РєСѓСЃРєР°, Р·Р°РєР»СЋС‡РµРЅРЅРѕРіРѕ РІ open Рё close,
+    //  РІС‹Р·С‹РІР°РµС‚ handleTarget, РґР»СЏ РѕСЃС‚Р°РІС€РёС…СЃСЏ РєСѓСЃРєРѕРІ РІС‹Р·С‹РІР°РµС‚ handeSource
     public static void findPart(byte[] source, int sourceOffset, int sourceEnd,
                                 byte[] open, int openOffset, int openEnd,
                                 byte[] close, int closeOffset, int closeEnd,
@@ -47,9 +47,9 @@ public class ByteArray {
         findPart(source, 0, source.length, begin, 0, begin.length, end, 0, end.length, handler);
     }
 
-    //----------------        аналог String.indexOf        ----------------
+    //----------------        Р°РЅР°Р»РѕРі String.indexOf        ----------------
 
-    //немного переделанная функция из jdk String.indexOf
+    //РЅРµРјРЅРѕРіРѕ РїРµСЂРµРґРµР»Р°РЅРЅР°СЏ С„СѓРЅРєС†РёСЏ РёР· jdk String.indexOf
     public static int indexOf(byte[] source, int sourceOffset, int sourceEnd,
                               byte[] target, int targetOffset, int targetCount)
     {
@@ -120,13 +120,13 @@ public class ByteArray {
     }
 
 
-    //----------------        аналог String.startsWith и String.endsWith        ----------------
+    //----------------        Р°РЅР°Р»РѕРі String.startsWith Рё String.endsWith        ----------------
 
     public static boolean startsWith(byte[] source, int sourceOffset, int sourceEnd,
                                      byte[] target, int targetOffset, int targetEnd)
     {
-        // с точки зрения реализации этой функции было бы удобнее передавать коичество, а не конец,
-        // но с точки зрения дизайна лучше сделать по аналогии с indexOf
+        // СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ СЂРµР°Р»РёР·Р°С†РёРё СЌС‚РѕР№ С„СѓРЅРєС†РёРё Р±С‹Р»Рѕ Р±С‹ СѓРґРѕР±РЅРµРµ РїРµСЂРµРґР°РІР°С‚СЊ РєРѕРёС‡РµСЃС‚РІРѕ, Р° РЅРµ РєРѕРЅРµС†,
+        // РЅРѕ СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ РґРёР·Р°Р№РЅР° Р»СѓС‡С€Рµ СЃРґРµР»Р°С‚СЊ РїРѕ Р°РЅР°Р»РѕРіРёРё СЃ indexOf
         int sourceCount = sourceEnd - sourceOffset;
         int targetCount = targetEnd - targetOffset;
         if (sourceCount < targetCount)  return false;
@@ -230,7 +230,7 @@ public class ByteArray {
         char[] buffer = new char [data.length*2];
         int i=0;
         for (byte _value : data) {
-            int value = _value & 0xFF;  //чтобы значения > 127 не были отрицательными числами
+            int value = _value & 0xFF;  //С‡С‚РѕР±С‹ Р·РЅР°С‡РµРЅРёСЏ > 127 РЅРµ Р±С‹Р»Рё РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹РјРё С‡РёСЃР»Р°РјРё
             buffer[i] = DIGITS[value/16];  i++;
             buffer[i] = DIGITS[value%16];  i++;
         }
@@ -241,7 +241,7 @@ public class ByteArray {
 
     private static final int START_CAPACITY = 1024 - 16;
 
-    // увеличивает объем памяти в два раза, но не меньше переданного значения и не меньше START_CAPACITY
+    // СѓРІРµР»РёС‡РёРІР°РµС‚ РѕР±СЉРµРј РїР°РјСЏС‚Рё РІ РґРІР° СЂР°Р·Р°, РЅРѕ РЅРµ РјРµРЅСЊС€Рµ РїРµСЂРµРґР°РЅРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ Рё РЅРµ РјРµРЅСЊС€Рµ START_CAPACITY
     public static byte[] realloc(byte[] data, int size)
     {
         int capacity = data.length * 2;
@@ -273,19 +273,19 @@ public class ByteArray {
 
     //----------------        io        ----------------
 
-    // читает поток целиком в массив байтов
+    // С‡РёС‚Р°РµС‚ РїРѕС‚РѕРє С†РµР»РёРєРѕРј РІ РјР°СЃСЃРёРІ Р±Р°Р№С‚РѕРІ
     public static byte[] read(InputStream input) throws IOException
     {
         return read(input, input.available());
     }
 
-    // эффективный вариант, если известен размер (например, ZipInputStream) точно или хотя бы предположительно
+    // СЌС„С„РµРєС‚РёРІРЅС‹Р№ РІР°СЂРёР°РЅС‚, РµСЃР»Рё РёР·РІРµСЃС‚РµРЅ СЂР°Р·РјРµСЂ (РЅР°РїСЂРёРјРµСЂ, ZipInputStream) С‚РѕС‡РЅРѕ РёР»Рё С…РѕС‚СЏ Р±С‹ РїСЂРµРґРїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕ
     public static byte[] read(InputStream input, int expectedSize) throws IOException
     {
-        // цикл идет в двух режимах: когда размер буфера (data.length) равен expectedSize,
-        // при заполнении буфера проверяется, есть ли еще данные в потоке и перевыделение буфера идет с учетом available(),
-        // (если она вернет значение меньше удвоенного размера буфера, то будет переключение на более простой второй режим)
-        // когда не равен, размер буфера просто всегда удваивается (первый режим может сократить количество realloc-ов)
+        // С†РёРєР» РёРґРµС‚ РІ РґРІСѓС… СЂРµР¶РёРјР°С…: РєРѕРіРґР° СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° (data.length) СЂР°РІРµРЅ expectedSize,
+        // РїСЂРё Р·Р°РїРѕР»РЅРµРЅРёРё Р±СѓС„РµСЂР° РїСЂРѕРІРµСЂСЏРµС‚СЃСЏ, РµСЃС‚СЊ Р»Рё РµС‰Рµ РґР°РЅРЅС‹Рµ РІ РїРѕС‚РѕРєРµ Рё РїРµСЂРµРІС‹РґРµР»РµРЅРёРµ Р±СѓС„РµСЂР° РёРґРµС‚ СЃ СѓС‡РµС‚РѕРј available(),
+        // (РµСЃР»Рё РѕРЅР° РІРµСЂРЅРµС‚ Р·РЅР°С‡РµРЅРёРµ РјРµРЅСЊС€Рµ СѓРґРІРѕРµРЅРЅРѕРіРѕ СЂР°Р·РјРµСЂР° Р±СѓС„РµСЂР°, С‚Рѕ Р±СѓРґРµС‚ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РЅР° Р±РѕР»РµРµ РїСЂРѕСЃС‚РѕР№ РІС‚РѕСЂРѕР№ СЂРµР¶РёРј)
+        // РєРѕРіРґР° РЅРµ СЂР°РІРµРЅ, СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РїСЂРѕСЃС‚Рѕ РІСЃРµРіРґР° СѓРґРІР°РёРІР°РµС‚СЃСЏ (РїРµСЂРІС‹Р№ СЂРµР¶РёРј РјРѕР¶РµС‚ СЃРѕРєСЂР°С‚РёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ realloc-РѕРІ)
         byte[] data = new byte [expectedSize<2 ? START_CAPACITY : expectedSize];
         int size = 0;
         for (;;)  {
@@ -308,7 +308,7 @@ public class ByteArray {
         return data;
     }
 
-    // количество прочитанных байт должно быть равно в точности
+    // РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… Р±Р°Р№С‚ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РІРЅРѕ РІ С‚РѕС‡РЅРѕСЃС‚Рё
     public static byte[] readFixed(InputStream input, int expectedSize) throws IOException
     {
         byte[] data = new byte [expectedSize];
@@ -323,7 +323,7 @@ public class ByteArray {
         }
     }
 
-    //    startCapacity эффективнее передавать на 1 больше известного размера данных
+    //    startCapacity СЌС„С„РµРєС‚РёРІРЅРµРµ РїРµСЂРµРґР°РІР°С‚СЊ РЅР° 1 Р±РѕР»СЊС€Рµ РёР·РІРµСЃС‚РЅРѕРіРѕ СЂР°Р·РјРµСЂР° РґР°РЅРЅС‹С…
     public ByteArray(InputStream input) throws IOException  {  this(input, START_CAPACITY);  }
     public ByteArray(InputStream input, int startCapacity) throws IOException
     {
@@ -383,16 +383,16 @@ public class ByteArray {
         private static int rand()  {  return 0x7FFFFFFF / (0x7FFFFFFF & random.nextInt());  }
 
         public static void main(String[] args) throws Exception  {
-            //    заполнить случайный буфер
+            //    Р·Р°РїРѕР»РЅРёС‚СЊ СЃР»СѓС‡Р°Р№РЅС‹Р№ Р±СѓС„РµСЂ
             byte[] source = new byte [32*1024];
             for (int i=0; i<source.length; i++)  source[i] = (byte) rand();
-            //    протетстировать ByteArray
+            //    РїСЂРѕС‚РµС‚СЃС‚РёСЂРѕРІР°С‚СЊ ByteArray
             ByteArray buffer = new ByteArray(new TestInputStream(source), 16);
             test(buffer.data, buffer.size, source);
-            //    протестировать функцию read
+            //    РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ read
             byte[] data = read(new TestInputStream(source));
             test(data, data.length, source);
-            //    протестировать функцию read с заданным размером
+            //    РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ read СЃ Р·Р°РґР°РЅРЅС‹Рј СЂР°Р·РјРµСЂРѕРј
             data = readFixed(new TestInputStream(source), source.length);
             test(data, data.length, source);
         }
@@ -417,7 +417,7 @@ public class ByteArray {
                 System.out.println("read byte");
                 return input.read();
             }
-            //public int read(byte[] b) throws IOException  правильно реализован в InputStream
+            //public int read(byte[] b) throws IOException  РїСЂР°РІРёР»СЊРЅРѕ СЂРµР°Р»РёР·РѕРІР°РЅ РІ InputStream
             @Override
             public int read(byte[] b, int off, int len) throws IOException  {
                 int result = input.read(b, off, len);
@@ -449,7 +449,7 @@ public class ByteArray {
 
     public static class TestReadProcessInputStream
     {
-        // Process.getInputStream.read() не возвращает -1 если в буфере больше нет места для записи, вернет 0
+        // Process.getInputStream.read() РЅРµ РІРѕР·РІСЂР°С‰Р°РµС‚ -1 РµСЃР»Рё РІ Р±СѓС„РµСЂРµ Р±РѕР»СЊС€Рµ РЅРµС‚ РјРµСЃС‚Р° РґР»СЏ Р·Р°РїРёСЃРё, РІРµСЂРЅРµС‚ 0
 
         public static void main(String[] args) throws Exception
         {
@@ -462,14 +462,14 @@ public class ByteArray {
 
     public static class TestZipInputStream
     {
-        // если в качестве startCapacity указать известный размер zip-сущности, то метод лишний раз выделит память в конце,
-        // так как available() для него возвращает 1, даже когда достигнут конец
+        // РµСЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ startCapacity СѓРєР°Р·Р°С‚СЊ РёР·РІРµСЃС‚РЅС‹Р№ СЂР°Р·РјРµСЂ zip-СЃСѓС‰РЅРѕСЃС‚Рё, С‚Рѕ РјРµС‚РѕРґ Р»РёС€РЅРёР№ СЂР°Р· РІС‹РґРµР»РёС‚ РїР°РјСЏС‚СЊ РІ РєРѕРЅС†Рµ,
+        // С‚Р°Рє РєР°Рє available() РґР»СЏ РЅРµРіРѕ РІРѕР·РІСЂР°С‰Р°РµС‚ 1, РґР°Р¶Рµ РєРѕРіРґР° РґРѕСЃС‚РёРіРЅСѓС‚ РєРѕРЅРµС†
 
         private static Random random = new Random();
 
         public static void main(String[] args) throws Exception
         {
-            // ZipOutputStream не сохраняет размеры сущностей
+            // ZipOutputStream РЅРµ СЃРѕС…СЂР°РЅСЏРµС‚ СЂР°Р·РјРµСЂС‹ СЃСѓС‰РЅРѕСЃС‚РµР№
 //            //    test data
 //            byte[] bytes = new byte [4*1024];
 //            random.nextBytes(bytes);

@@ -129,7 +129,7 @@ public class ExampleFilter implements Filter
     }
 
     /**
-     * Неправильные действия со стороны клиента.
+     * РќРµРїСЂР°РІРёР»СЊРЅС‹Рµ РґРµР№СЃС‚РІРёСЏ СЃРѕ СЃС‚РѕСЂРѕРЅС‹ РєР»РёРµРЅС‚Р°.
      */
     public static class ClientException extends Exception
     {

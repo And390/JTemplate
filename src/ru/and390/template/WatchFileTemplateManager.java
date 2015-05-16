@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * В дополнение к FileTemplateManager мониторит заданный каталог, выгружая измененные шаблоны из кэша
+ * Р’ РґРѕРїРѕР»РЅРµРЅРёРµ Рє FileTemplateManager РјРѕРЅРёС‚РѕСЂРёС‚ Р·Р°РґР°РЅРЅС‹Р№ РєР°С‚Р°Р»РѕРі, РІС‹РіСЂСѓР¶Р°СЏ РёР·РјРµРЅРµРЅРЅС‹Рµ С€Р°Р±Р»РѕРЅС‹ РёР· РєСЌС€Р°
  * And390 - 21.04.2015
  */
 public class WatchFileTemplateManager extends FileTemplateManager implements AutoCloseable

@@ -38,7 +38,7 @@ public class PlayingScriptEngineScopes
     {
         String script = "if (typeof a == 'undefined') a=0; a++; java.lang.System.out.println('from script:           '+a);";
 
-        // значение сохранится в context, но для Nashorn значение в java не вернется (только в Rhino)
+        // Р·РЅР°С‡РµРЅРёРµ СЃРѕС…СЂР°РЅРёС‚СЃСЏ РІ context, РЅРѕ РґР»СЏ Nashorn Р·РЅР°С‡РµРЅРёРµ РІ java РЅРµ РІРµСЂРЅРµС‚СЃСЏ (С‚РѕР»СЊРєРѕ РІ Rhino)
         System.out.println("\n    With new SimpleScriptContext ()");
         ScriptContext context = new SimpleScriptContext ();
         engine.eval(script, context);
@@ -47,7 +47,7 @@ public class PlayingScriptEngineScopes
         engine.eval(script, context);
         printScopesValues("a", context);
 
-        // значение сохранится в bindings, но для Nashorn значение в java не вернется (только в Rhino)
+        // Р·РЅР°С‡РµРЅРёРµ СЃРѕС…СЂР°РЅРёС‚СЃСЏ РІ bindings, РЅРѕ РґР»СЏ Nashorn Р·РЅР°С‡РµРЅРёРµ РІ java РЅРµ РІРµСЂРЅРµС‚СЃСЏ (С‚РѕР»СЊРєРѕ РІ Rhino)
         System.out.println("\n    With new SimpleBindings ()");
         Bindings bindings = new SimpleBindings ();
         engine.eval(script, bindings);
@@ -56,7 +56,7 @@ public class PlayingScriptEngineScopes
         engine.eval(script, bindings);
         printScopesValues("a", bindings);
 
-        // для Nashorn только этот способ позволит получить значение a
+        // РґР»СЏ Nashorn С‚РѕР»СЊРєРѕ СЌС‚РѕС‚ СЃРїРѕСЃРѕР± РїРѕР·РІРѕР»РёС‚ РїРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ a
         System.out.println("\n    With ScriptEngine.createBindings ()");
         bindings = engine.createBindings();
         engine.eval(script, bindings);

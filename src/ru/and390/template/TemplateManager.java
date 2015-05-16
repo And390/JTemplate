@@ -12,19 +12,19 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Потоко-безопасный (за потоко-безопасность методов getTemplate и putTemplate отвечают наследники)
- * Для одиночного контента (без экземпляра TemplateManager, include будет недоступен)
- * пользовательский код может использовать: TemplateManager.parse(content).eval(bindings, output)
- * В общем случае: templateManager.eval(path, bindings, output);
- * или равносильно: templateManager.getTemplate(path).eval(bindings, output)
- * Пути: относительный в include - значит относительно каталога текущего шаблона, абсолютный - относительно корня шаблонов;
- *  getTemplate (и сам TemplateManager) должен принимать только абсолютные пути в этом смысле.
- * Все пути хранятся с Unix-слэшами (даже если работает это под Windows)
+ * РџРѕС‚РѕРєРѕ-Р±РµР·РѕРїР°СЃРЅС‹Р№ (Р·Р° РїРѕС‚РѕРєРѕ-Р±РµР·РѕРїР°СЃРЅРѕСЃС‚СЊ РјРµС‚РѕРґРѕРІ getTemplate Рё putTemplate РѕС‚РІРµС‡Р°СЋС‚ РЅР°СЃР»РµРґРЅРёРєРё)
+ * Р”Р»СЏ РѕРґРёРЅРѕС‡РЅРѕРіРѕ РєРѕРЅС‚РµРЅС‚Р° (Р±РµР· СЌРєР·РµРјРїР»СЏСЂР° TemplateManager, include Р±СѓРґРµС‚ РЅРµРґРѕСЃС‚СѓРїРµРЅ)
+ * РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ РєРѕРґ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ: TemplateManager.parse(content).eval(bindings, output)
+ * Р’ РѕР±С‰РµРј СЃР»СѓС‡Р°Рµ: templateManager.eval(path, bindings, output);
+ * РёР»Рё СЂР°РІРЅРѕСЃРёР»СЊРЅРѕ: templateManager.getTemplate(path).eval(bindings, output)
+ * РџСѓС‚Рё: РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Р№ РІ include - Р·РЅР°С‡РёС‚ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєР°С‚Р°Р»РѕРіР° С‚РµРєСѓС‰РµРіРѕ С€Р°Р±Р»РѕРЅР°, Р°Р±СЃРѕР»СЋС‚РЅС‹Р№ - РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєРѕСЂРЅСЏ С€Р°Р±Р»РѕРЅРѕРІ;
+ *  getTemplate (Рё СЃР°Рј TemplateManager) РґРѕР»Р¶РµРЅ РїСЂРёРЅРёРјР°С‚СЊ С‚РѕР»СЊРєРѕ Р°Р±СЃРѕР»СЋС‚РЅС‹Рµ РїСѓС‚Рё РІ СЌС‚РѕРј СЃРјС‹СЃР»Рµ.
+ * Р’СЃРµ РїСѓС‚Рё С…СЂР°РЅСЏС‚СЃСЏ СЃ Unix-СЃР»СЌС€Р°РјРё (РґР°Р¶Рµ РµСЃР»Рё СЂР°Р±РѕС‚Р°РµС‚ СЌС‚Рѕ РїРѕРґ Windows)
  * And390 - 03.12.13
  */
 public abstract class TemplateManager
 {
-    //    синглетон для ScriptEngine, плюс отдельный инстанс для каждого потока, если он не потоко-безопасный
+    //    СЃРёРЅРіР»РµС‚РѕРЅ РґР»СЏ ScriptEngine, РїР»СЋСЃ РѕС‚РґРµР»СЊРЅС‹Р№ РёРЅСЃС‚Р°РЅСЃ РґР»СЏ РєР°Р¶РґРѕРіРѕ РїРѕС‚РѕРєР°, РµСЃР»Рё РѕРЅ РЅРµ РїРѕС‚РѕРєРѕ-Р±РµР·РѕРїР°СЃРЅС‹Р№
     private static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
     private static ScriptEngine scriptEngine;
     private static ThreadLocal<ScriptEngine> scriptEngineTL;
@@ -33,12 +33,12 @@ public abstract class TemplateManager
     {
         if (scriptEngine!=null)  return scriptEngine;
         if (scriptEngineTL!=null)  return scriptEngineTL.get();
-        //    первый вывзов - создать ScriptEngine
+        //    РїРµСЂРІС‹Р№ РІС‹РІР·РѕРІ - СЃРѕР·РґР°С‚СЊ ScriptEngine
         ScriptEngine newScriptEngine = scriptEngineManager.getEngineByName("JavaScript");
-        //    проверить, поддерживает ли он многопоточность, если да, то все ОК, сохранить
+        //    РїСЂРѕРІРµСЂРёС‚СЊ, РїРѕРґРґРµСЂР¶РёРІР°РµС‚ Р»Рё РѕРЅ РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅРѕСЃС‚СЊ, РµСЃР»Рё РґР°, С‚Рѕ РІСЃРµ РћРљ, СЃРѕС…СЂР°РЅРёС‚СЊ
         if (newScriptEngine.getFactory().getParameter("THREADING")!=null)
             scriptEngine = newScriptEngine;
-        //    если нет, то инициализировать ThreadLocal-переменную
+        //    РµСЃР»Рё РЅРµС‚, С‚Рѕ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ ThreadLocal-РїРµСЂРµРјРµРЅРЅСѓСЋ
         else  {
             scriptEngineTL = new ThreadLocal<ScriptEngine>()  {
                 @Override
@@ -46,9 +46,9 @@ public abstract class TemplateManager
                     return scriptEngineManager.getEngineByName("JavaScript");
                 }
             };
-            scriptEngineTL.set(newScriptEngine);  // сохранить уже созданный экземпляр для текущего потока
+            scriptEngineTL.set(newScriptEngine);  // СЃРѕС…СЂР°РЅРёС‚СЊ СѓР¶Рµ СЃРѕР·РґР°РЅРЅС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РґР»СЏ С‚РµРєСѓС‰РµРіРѕ РїРѕС‚РѕРєР°
         }
-        //    и вернуть
+        //    Рё РІРµСЂРЅСѓС‚СЊ
         return newScriptEngine;
     }
 
@@ -58,10 +58,10 @@ public abstract class TemplateManager
         if (scriptEngineTL!=null)  scriptEngineTL.remove();
     }
 
-    // возвращает (создает на свое усмотрение) шаблон по указанному пути или null, если не найдено
+    // РІРѕР·РІСЂР°С‰Р°РµС‚ (СЃРѕР·РґР°РµС‚ РЅР° СЃРІРѕРµ СѓСЃРјРѕС‚СЂРµРЅРёРµ) С€Р°Р±Р»РѕРЅ РїРѕ СѓРєР°Р·Р°РЅРЅРѕРјСѓ РїСѓС‚Рё РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ
     public abstract Template getTemplate(String path) throws Exception;
 
-    // сохраняет шаблон по указанному пути, если template==null, то удаляет
+    // СЃРѕС…СЂР°РЅСЏРµС‚ С€Р°Р±Р»РѕРЅ РїРѕ СѓРєР°Р·Р°РЅРЅРѕРјСѓ РїСѓС‚Рё, РµСЃР»Рё template==null, С‚Рѕ СѓРґР°Р»СЏРµС‚
     public abstract void putTemplate(String path, Template template);
 
     protected static String checkPath(String path)
@@ -92,9 +92,9 @@ public abstract class TemplateManager
 
     //                --------    parsing    --------
 
-    // parse - главная функция, которая превращает контент в шаблон
-    // если указан не null manager, то смогут работать функции include из шаблона (которые иначе вызывают ошибку),
-    // но, если используются относительные пути, то должен быть указан и path (иначе include вызовет ошибку)
+    // parse - РіР»Р°РІРЅР°СЏ С„СѓРЅРєС†РёСЏ, РєРѕС‚РѕСЂР°СЏ РїСЂРµРІСЂР°С‰Р°РµС‚ РєРѕРЅС‚РµРЅС‚ РІ С€Р°Р±Р»РѕРЅ
+    // РµСЃР»Рё СѓРєР°Р·Р°РЅ РЅРµ null manager, С‚Рѕ СЃРјРѕРіСѓС‚ СЂР°Р±РѕС‚Р°С‚СЊ С„СѓРЅРєС†РёРё include РёР· С€Р°Р±Р»РѕРЅР° (РєРѕС‚РѕСЂС‹Рµ РёРЅР°С‡Рµ РІС‹Р·С‹РІР°СЋС‚ РѕС€РёР±РєСѓ),
+    // РЅРѕ, РµСЃР»Рё РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Рµ РїСѓС‚Рё, С‚Рѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅ Рё path (РёРЅР°С‡Рµ include РІС‹Р·РѕРІРµС‚ РѕС€РёР±РєСѓ)
 
     public static Template parse(String content) throws ScriptException  {  return parse(content, null, null);  }
 
@@ -129,25 +129,25 @@ public abstract class TemplateManager
         int i0;
         for (;;)
         {
-            //    найти следующий ${ или <$
+            //    РЅР°Р№С‚Рё СЃР»РµРґСѓСЋС‰РёР№ ${ РёР»Рё <$
             boolean tagged = false;
             i0 = i;
             for (;;)  {
                 i = content.indexOf('$', i);
                 if (i==-1)  break;  //end of content
                 else if (i!=0 && content.charAt(i-1)=='<')  {  tagged=true;  i--;  break;  }
-                else if (i!=0 && content.charAt(i-1)=='{')  {  i--;  break;  }  //экранирование
+                else if (i!=0 && content.charAt(i-1)=='{')  {  i--;  break;  }  //СЌРєСЂР°РЅРёСЂРѕРІР°РЅРёРµ
                 else if (i+1!=content.length() && content.charAt(i+1)=='{')  break;
                 else  i++;
             }
-            //    добавить вставку текста до ${ или <$
+            //    РґРѕР±Р°РІРёС‚СЊ РІСЃС‚Р°РІРєСѓ С‚РµРєСЃС‚Р° РґРѕ ${ РёР»Рё <$
             if (i!=i0 && (i0!=0 || i!=-1))  {
                 buffer.append(" context.outputResponsePart(").append(strings.size()).append(");");
                 strings.add(content.substring(i0, i==-1 ? content.length() : i));
             }
-            //    достигнут ли конец
+            //    РґРѕСЃС‚РёРіРЅСѓС‚ Р»Рё РєРѕРЅРµС†
             if (i==-1)  {  pos[0]=-1;  break;  }
-            //    может быть это экранирование $
+            //    РјРѕР¶РµС‚ Р±С‹С‚СЊ СЌС‚Рѕ СЌРєСЂР°РЅРёСЂРѕРІР°РЅРёРµ $
             if (content.startsWith("<$>", i) || content.startsWith("{$}", i))  {
                 buffer.append(" context.output('$');");
                 i += 3;
@@ -158,12 +158,12 @@ public abstract class TemplateManager
                 i += "${$}".length();
                 continue;
             }
-            //    терминатор <$:
-            if (tagged && i+2!=content.length() && content.charAt(i+2)==':')  {  pos[0]=i+3;  break;  }  //i до скобок (понадобится потом), но курсор передвинуть за <$:
-            //    переходим к разбору скрипта внутри скобок
+            //    С‚РµСЂРјРёРЅР°С‚РѕСЂ <$:
+            if (tagged && i+2!=content.length() && content.charAt(i+2)==':')  {  pos[0]=i+3;  break;  }  //i РґРѕ СЃРєРѕР±РѕРє (РїРѕРЅР°РґРѕР±РёС‚СЃСЏ РїРѕС‚РѕРј), РЅРѕ РєСѓСЂСЃРѕСЂ РїРµСЂРµРґРІРёРЅСѓС‚СЊ Р·Р° <$:
+            //    РїРµСЂРµС…РѕРґРёРј Рє СЂР°Р·Р±РѕСЂСѓ СЃРєСЂРёРїС‚Р° РІРЅСѓС‚СЂРё СЃРєРѕР±РѕРє
             i += 2;  //${ or <$ length
-            //    найти закрывающую } или $>
-            while (true)  {  //цикл из-за возможных дочерних шаблонов
+            //    РЅР°Р№С‚Рё Р·Р°РєСЂС‹РІР°СЋС‰СѓСЋ } РёР»Рё $>
+            while (true)  {  //С†РёРєР» РёР·-Р·Р° РІРѕР·РјРѕР¶РЅС‹С… РґРѕС‡РµСЂРЅРёС… С€Р°Р±Р»РѕРЅРѕРІ
                 i0 = i;
                 int expressionsOpen = -1;
                 boolean singleQuote = false;
@@ -210,27 +210,27 @@ public abstract class TemplateManager
                             else if (c=='\"')  doubleQuote = true;
                         }
                 }
-                //    дочерние шаблоны
+                //    РґРѕС‡РµСЂРЅРёРµ С€Р°Р±Р»РѕРЅС‹
                 if (tagged && content.charAt(i-1)==':' && i!=i0)  {
-                    //    добавить скрипт
+                    //    РґРѕР±Р°РІРёС‚СЊ СЃРєСЂРёРїС‚
                     buffer.append(content.substring(i0, i - 1));
-                    //    рекурсивно разобрать дочерний шаблон
+                    //    СЂРµРєСѓСЂСЃРёРІРЅРѕ СЂР°Р·РѕР±СЂР°С‚СЊ РґРѕС‡РµСЂРЅРёР№ С€Р°Р±Р»РѕРЅ
                     i += 2;
                     pos[0] = i;
                     if (childs==null)  childs = new ArrayList<> ();
                     childs.add(parse(content, pos, manager, path));
                     i = pos[0];
-                    //    добавить скрипт, возвращающий шаблон
+                    //    РґРѕР±Р°РІРёС‚СЊ СЃРєСЂРёРїС‚, РІРѕР·РІСЂР°С‰Р°СЋС‰РёР№ С€Р°Р±Р»РѕРЅ
                     buffer.append(" context.childs[").append(childs.size()-1).append("]");
-                    //    должен остановиться на открытых скобках, которые будут разбраны следующей итерацией цикла
+                    //    РґРѕР»Р¶РµРЅ РѕСЃС‚Р°РЅРѕРІРёС‚СЊСЃСЏ РЅР° РѕС‚РєСЂС‹С‚С‹С… СЃРєРѕР±РєР°С…, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ СЂР°Р·Р±СЂР°РЅС‹ СЃР»РµРґСѓСЋС‰РµР№ РёС‚РµСЂР°С†РёРµР№ С†РёРєР»Р°
                     if (i==-1)  throw new ScriptException ("Child template is not ends with <$:");
                     continue;
                 }
-                //    добавить скрипт мeжду скобками
+                //    РґРѕР±Р°РІРёС‚СЊ СЃРєСЂРёРїС‚ РјeР¶РґСѓ СЃРєРѕР±РєР°РјРё
                 if (i!=i0)
-                    //    закрытое выражение, не возвращает значения - просто добавить скрипт
+                    //    Р·Р°РєСЂС‹С‚РѕРµ РІС‹СЂР°Р¶РµРЅРёРµ, РЅРµ РІРѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёСЏ - РїСЂРѕСЃС‚Рѕ РґРѕР±Р°РІРёС‚СЊ СЃРєСЂРёРїС‚
                     if (expressionsOpen==-1 || tagged)  buffer.append(content.substring(i0, i));
-                    //    открытое выражение, которое возвращает значение - добавить скрипт, затем вывод значения
+                    //    РѕС‚РєСЂС‹С‚РѕРµ РІС‹СЂР°Р¶РµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ РІРѕР·РІСЂР°С‰Р°РµС‚ Р·РЅР°С‡РµРЅРёРµ - РґРѕР±Р°РІРёС‚СЊ СЃРєСЂРёРїС‚, Р·Р°С‚РµРј РІС‹РІРѕРґ Р·РЅР°С‡РµРЅРёСЏ
                     else  {
                         buffer.append(content.substring(i0, expressionsOpen));
                         if (endsWith(content, "#h", i))  buffer.append(" context.output(context.escapeHTML(")
@@ -244,23 +244,23 @@ public abstract class TemplateManager
             i += tagged ? "$>".length() : "}".length();
         }
 
-        //    сформировать результат
-        //    если динамических элементов нет, вернуть статичный шаблон
+        //    СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚
+        //    РµСЃР»Рё РґРёРЅР°РјРёС‡РµСЃРєРёС… СЌР»РµРјРµРЅС‚РѕРІ РЅРµС‚, РІРµСЂРЅСѓС‚СЊ СЃС‚Р°С‚РёС‡РЅС‹Р№ С€Р°Р±Р»РѕРЅ
         if (i0==start)  {
             return new StaticTemplate (content.substring(i0, i==-1 ? content.length() : i));
         }
         else  {
             String script = buffer.toString();
             ScriptEngine engine = getEngine();
-            //    если можно скомпилировать, вернуть скомпилированный шаблон
+            //    РµСЃР»Рё РјРѕР¶РЅРѕ СЃРєРѕРјРїРёР»РёСЂРѕРІР°С‚СЊ, РІРµСЂРЅСѓС‚СЊ СЃРєРѕРјРїРёР»РёСЂРѕРІР°РЅРЅС‹Р№ С€Р°Р±Р»РѕРЅ
             if (engine instanceof Compilable)
-                //    простой вариант для потоко-безопасного движка
+                //    РїСЂРѕСЃС‚РѕР№ РІР°СЂРёР°РЅС‚ РґР»СЏ РїРѕС‚РѕРєРѕ-Р±РµР·РѕРїР°СЃРЅРѕРіРѕ РґРІРёР¶РєР°
                 if (engine==scriptEngine)
                     return new CompiledTemplate (script, strings, childs, manager, path);
-                //    сложный вариант для не потоко-безопасного
+                //    СЃР»РѕР¶РЅС‹Р№ РІР°СЂРёР°РЅС‚ РґР»СЏ РЅРµ РїРѕС‚РѕРєРѕ-Р±РµР·РѕРїР°СЃРЅРѕРіРѕ
                 else
                     return new CompiledTemplateTL (script, strings, childs, manager, path);
-            //    иначе обычный интерпретируемый
+            //    РёРЅР°С‡Рµ РѕР±С‹С‡РЅС‹Р№ РёРЅС‚РµСЂРїСЂРµС‚РёСЂСѓРµРјС‹Р№
             else
                 return new ScriptTemplate (script, strings, childs, manager, path);
         }
@@ -273,7 +273,7 @@ public abstract class TemplateManager
 
     //                --------    template implamantations    --------
 
-    // Статичный шаблон, просто возвращающий фиксированный текст
+    // РЎС‚Р°С‚РёС‡РЅС‹Р№ С€Р°Р±Р»РѕРЅ, РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°СЋС‰РёР№ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ С‚РµРєСЃС‚
     public static class StaticTemplate implements Template
     {
         public String content;
@@ -285,7 +285,7 @@ public abstract class TemplateManager
         }
     }
 
-    // Динамический шаблон
+    // Р”РёРЅР°РјРёС‡РµСЃРєРёР№ С€Р°Р±Р»РѕРЅ
     public static abstract class BindedTemplate implements Template
     {
         private static final ThreadLocal<Context> currContext = new ThreadLocal<> ();
@@ -305,13 +305,13 @@ public abstract class TemplateManager
         public void eval(Bindings bindings, Appendable out) throws ScriptException, NoSuchMethodException
         {
             Context context = new Context(manager, path, parts, childs, bindings, out);
-            //    сохранить состояние контекста
+            //    СЃРѕС…СЂР°РЅРёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РєРѕРЅС‚РµРєСЃС‚Р°
             Context lastContext = currContext.get();
             currContext.set(context);
             //    eval
             eval(context, out);
-            //    если вызов eval был внутри другого eval (include), то теперь текущий контекст сохранится в движке
-            //    вместо родительского, поэтому необходимо восстановить состояние контекста (Scripting API не делает этого сам)
+            //    РµСЃР»Рё РІС‹Р·РѕРІ eval Р±С‹Р» РІРЅСѓС‚СЂРё РґСЂСѓРіРѕРіРѕ eval (include), С‚Рѕ С‚РµРїРµСЂСЊ С‚РµРєСѓС‰РёР№ РєРѕРЅС‚РµРєСЃС‚ СЃРѕС…СЂР°РЅРёС‚СЃСЏ РІ РґРІРёР¶РєРµ
+            //    РІРјРµСЃС‚Рѕ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ, РїРѕСЌС‚РѕРјСѓ РЅРµРѕР±С…РѕРґРёРјРѕ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РєРѕРЅС‚РµРєСЃС‚Р° (Scripting API РЅРµ РґРµР»Р°РµС‚ СЌС‚РѕРіРѕ СЃР°Рј)
             currContext.set(lastContext);
             if (lastContext!=null) {
                 context.set(lastContext.manager, lastContext.path, lastContext.parts, lastContext.childs,
@@ -358,13 +358,13 @@ public abstract class TemplateManager
             {
                 if (manager==null)  throw new ScriptException ("Can not include template without TemplateManager");
                 String sourcePath = path;
-                //    обработать относительный путь
+                //    РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Р№ РїСѓС‚СЊ
                 if (!path.startsWith("/"))
                 {
                     if (this.path ==null)  throw new ScriptException ("Can not resolve relative template path because no base path is specified");
-                    //    игнорировать обращение к текущему каталогу
+                    //    РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊ РѕР±СЂР°С‰РµРЅРёРµ Рє С‚РµРєСѓС‰РµРјСѓ РєР°С‚Р°Р»РѕРіСѓ
                     if (path.startsWith("./"))  path = path.substring("./".length());
-                    //    посчитать корневой каталог
+                    //    РїРѕСЃС‡РёС‚Р°С‚СЊ РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі
                     int p = this.path.lastIndexOf('/');
                     if (p==-1)  throw new RuntimeException ("Path must starts with '/': "+ this.path);
                     while (path.startsWith("../"))  {
@@ -372,14 +372,14 @@ public abstract class TemplateManager
                         p = this.path.lastIndexOf('/', p - 1);
                         if (p==-1)  throw new ScriptException ("Wrong parent path: "+sourcePath+", relative to "+ this.path);
                     }
-                    //    сложить корневой каталог и относительный путь
+                    //    СЃР»РѕР¶РёС‚СЊ РєРѕСЂРЅРµРІРѕР№ РєР°С‚Р°Р»РѕРі Рё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅС‹Р№ РїСѓС‚СЊ
                     path = this.path.substring(0, p + 1) + path;
                 }
-                //    внутри пути не должно быть обращений к родительскому или текущему каталгу, виндовый слэш запрещаем
+                //    РІРЅСѓС‚СЂРё РїСѓС‚Рё РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕР±СЂР°С‰РµРЅРёР№ Рє СЂРѕРґРёС‚РµР»СЊСЃРєРѕРјСѓ РёР»Рё С‚РµРєСѓС‰РµРјСѓ РєР°С‚Р°Р»РіСѓ, РІРёРЅРґРѕРІС‹Р№ СЃР»СЌС€ Р·Р°РїСЂРµС‰Р°РµРј
                 if (path.contains("/./") || path.endsWith("/.") || path.equals("."))  throw new ScriptException ("Parent path references ('..') are allowed only at the start of a path: "+sourcePath);
                 if (path.contains("/../") || path.endsWith("/..") || path.equals(".."))  throw new ScriptException ("Current path references ('.') are allowed only at the start of a path: "+sourcePath);
                 if (path.indexOf('\\')!=-1)  throw new ScriptException ("Path contains forbidden character '\\'");
-                //    выполнить
+                //    РІС‹РїРѕР»РЅРёС‚СЊ
                 manager.eval(path, bindings, out);
             }
 
@@ -442,7 +442,7 @@ public abstract class TemplateManager
         }
     }
 
-    // Интерпретируемый шаблон, хранит текст скрипта и выпоняет его при каждом вызове eval
+    // РРЅС‚РµСЂРїСЂРµС‚РёСЂСѓРµРјС‹Р№ С€Р°Р±Р»РѕРЅ, С…СЂР°РЅРёС‚ С‚РµРєСЃС‚ СЃРєСЂРёРїС‚Р° Рё РІС‹РїРѕРЅСЏРµС‚ РµРіРѕ РїСЂРё РєР°Р¶РґРѕРј РІС‹Р·РѕРІРµ eval
     public static class ScriptTemplate extends BindedTemplate
     {
         public final String script;
@@ -458,8 +458,8 @@ public abstract class TemplateManager
         }
     }
 
-    // Скомпилированный шаблон, отличается от ScriptTemplate тем, что хранит скомпилированную версию скрипта
-    // Эта версия для потокобезопасной реализации ScriptEngine.
+    // РЎРєРѕРјРїРёР»РёСЂРѕРІР°РЅРЅС‹Р№ С€Р°Р±Р»РѕРЅ, РѕС‚Р»РёС‡Р°РµС‚СЃСЏ РѕС‚ ScriptTemplate С‚РµРј, С‡С‚Рѕ С…СЂР°РЅРёС‚ СЃРєРѕРјРїРёР»РёСЂРѕРІР°РЅРЅСѓСЋ РІРµСЂСЃРёСЋ СЃРєСЂРёРїС‚Р°
+    // Р­С‚Р° РІРµСЂСЃРёСЏ РґР»СЏ РїРѕС‚РѕРєРѕР±РµР·РѕРїР°СЃРЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё ScriptEngine.
     public static class CompiledTemplate extends BindedTemplate
     {
         public final CompiledScript script;
@@ -477,11 +477,11 @@ public abstract class TemplateManager
         }
     }
 
-    // Версия CompiledTemplate для не потоко-безопасной реализации ScriptEngine.
-    // Объект CompiledScript привязан к экземпляру ScriptEngine, следовательно, как и ScriptEngine
-    // не может использоваться параллельно (по крайней мере, следуя немногословной документации, реально может быть и может...)
-    // Возможно, это неэффективная реализация, если объекты CompiledScript достаточно тяжеловесны
-    // (тогда, более уместным может быть, например, пул)
+    // Р’РµСЂСЃРёСЏ CompiledTemplate РґР»СЏ РЅРµ РїРѕС‚РѕРєРѕ-Р±РµР·РѕРїР°СЃРЅРѕР№ СЂРµР°Р»РёР·Р°С†РёРё ScriptEngine.
+    // РћР±СЉРµРєС‚ CompiledScript РїСЂРёРІСЏР·Р°РЅ Рє СЌРєР·РµРјРїР»СЏСЂСѓ ScriptEngine, СЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, РєР°Рє Рё ScriptEngine
+    // РЅРµ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РїР°СЂР°Р»Р»РµР»СЊРЅРѕ (РїРѕ РєСЂР°Р№РЅРµР№ РјРµСЂРµ, СЃР»РµРґСѓСЏ РЅРµРјРЅРѕРіРѕСЃР»РѕРІРЅРѕР№ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё, СЂРµР°Р»СЊРЅРѕ РјРѕР¶РµС‚ Р±С‹С‚СЊ Рё РјРѕР¶РµС‚...)
+    // Р’РѕР·РјРѕР¶РЅРѕ, СЌС‚Рѕ РЅРµСЌС„С„РµРєС‚РёРІРЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ, РµСЃР»Рё РѕР±СЉРµРєС‚С‹ CompiledScript РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С‚СЏР¶РµР»РѕРІРµСЃРЅС‹
+    // (С‚РѕРіРґР°, Р±РѕР»РµРµ СѓРјРµСЃС‚РЅС‹Рј РјРѕР¶РµС‚ Р±С‹С‚СЊ, РЅР°РїСЂРёРјРµСЂ, РїСѓР»)
     public static class CompiledTemplateTL extends BindedTemplate
     {
         public final ThreadLocal<CompiledScript> script;
