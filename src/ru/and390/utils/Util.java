@@ -616,47 +616,47 @@ public class Util
         else  return null;
     }
 
-    public static int cutBOM(byte[] bytes, String encoding)  {
-        if (Charset.forName(encoding).equals(UTF8))  {  if (ByteArray.startsWith(bytes, UTF8_BOM))  return UTF8_BOM.length;  }
-        else if (Charset.forName(encoding).equals(UTF16LE))  {  if (ByteArray.startsWith(bytes, UTF16LE_BOM))  return UTF16LE_BOM.length;  }
-        else if (Charset.forName(encoding).equals(UTF16BE))  {  if (ByteArray.startsWith(bytes, UTF16BE_BOM))  return UTF16BE_BOM.length;  }
-        else if (Charset.forName(encoding).equals(UTF32LE))  {  if (ByteArray.startsWith(bytes, UTF32LE_BOM))  return UTF32LE_BOM.length;  }
-        else if (Charset.forName(encoding).equals(UTF32BE))  {  if (ByteArray.startsWith(bytes, UTF32BE_BOM))  return UTF32BE_BOM.length;  }
+    public static int cutBOM(byte[] bytes, Charset charset)  {
+        if (charset.equals(UTF8))  {  if (ByteArray.startsWith(bytes, UTF8_BOM))  return UTF8_BOM.length;  }
+        else if (charset.equals(UTF16LE))  {  if (ByteArray.startsWith(bytes, UTF16LE_BOM))  return UTF16LE_BOM.length;  }
+        else if (charset.equals(UTF16BE))  {  if (ByteArray.startsWith(bytes, UTF16BE_BOM))  return UTF16BE_BOM.length;  }
+        else if (charset.equals(UTF32LE))  {  if (ByteArray.startsWith(bytes, UTF32LE_BOM))  return UTF32LE_BOM.length;  }
+        else if (charset.equals(UTF32BE))  {  if (ByteArray.startsWith(bytes, UTF32BE_BOM))  return UTF32BE_BOM.length;  }
         return 0;
     }
 
-    public static String read(InputStream input, String encoding) throws IOException  {
+    public static String read(InputStream input, Charset charset) throws IOException  {
         ByteArray bytes = new ByteArray(input);
-        return bytes.toString(cutBOM(bytes.data, encoding), encoding);
+        return bytes.toString(cutBOM(bytes.data, charset), charset);
     }
-    public static String read(RandomAccessFile file, String encoding) throws IOException  {
+    public static String read(RandomAccessFile file, Charset charset) throws IOException  {
         byte[] bytes = ByteArray.read(file);
-        int offset = cutBOM(bytes, encoding);
-        return new String (bytes, offset, bytes.length-offset, encoding);
+        int offset = cutBOM(bytes, charset);
+        return new String (bytes, offset, bytes.length-offset, charset);
     }
-    public static String read(File file, String encoding) throws IOException  {
+    public static String read(File file, Charset charset) throws IOException  {
         byte[] bytes = ByteArray.read(file);
-        int offset = cutBOM(bytes, encoding);
-        return new String (bytes, offset, bytes.length-offset, encoding);
+        int offset = cutBOM(bytes, charset);
+        return new String (bytes, offset, bytes.length-offset, charset);
     }
-    public static String read(String fileName, String encoding) throws IOException  {
-        return read(new File(fileName), encoding);
-    }
-
-    public static void write(String fileName, String content, String encoding, boolean append) throws IOException  {
-        ByteArray.write(fileName, content.getBytes(encoding), append);
+    public static String read(String fileName, Charset charset) throws IOException  {
+        return read(new File(fileName), charset);
     }
 
-    public static void write(String fileName, String content, String encoding) throws IOException  {
-        ByteArray.write(fileName, content.getBytes(encoding));
+    public static void write(String fileName, String content, Charset charset, boolean append) throws IOException  {
+        ByteArray.write(fileName, content.getBytes(charset), append);
     }
 
-    public static void write(File file, String content, String encoding, boolean append) throws IOException  {
-        ByteArray.write(file, content.getBytes(encoding), append);
+    public static void write(String fileName, String content, Charset charset) throws IOException  {
+        ByteArray.write(fileName, content.getBytes(charset));
     }
 
-    public static void write(File file, String content, String encoding) throws IOException  {
-        ByteArray.write(file, content.getBytes(encoding));
+    public static void write(File file, String content, Charset charset, boolean append) throws IOException  {
+        ByteArray.write(file, content.getBytes(charset), append);
+    }
+
+    public static void write(File file, String content, Charset charset) throws IOException  {
+        ByteArray.write(file, content.getBytes(charset));
     }
 
     public static <E extends Throwable> void listFiles(File dir, Consumer<File, E> handler) throws E

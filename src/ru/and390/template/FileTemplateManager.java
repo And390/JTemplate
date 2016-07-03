@@ -14,15 +14,17 @@ import java.nio.charset.Charset;
 public class FileTemplateManager extends CacheTemplateManager
 {
     public final File root;
-    public final String encoding;
+    public final Charset charset;
 
     public FileTemplateManager()  {  this(new File ("."));  }
     public FileTemplateManager(File root)  {  this(root, Charset.defaultCharset().name());  }
     public FileTemplateManager(String encoding)  {  this(new File ("."), encoding);  }
-    public FileTemplateManager(File root_, String encoding_)  {  root=root_;  encoding=encoding_;  }
+    public FileTemplateManager(Charset charset)  {  this(new File ("."), charset);  }
+    public FileTemplateManager(File root_, String encoding_)  {  root=root_;  charset=Charset.forName(encoding_);  }
+    public FileTemplateManager(File root_, Charset charset_)  {  root=root_;  charset=charset_;  }
 
     protected String readContent(String path) throws IOException  {
-        try  {  return Util.read(new File (root, path), encoding);  }
+        try  {  return Util.read(new File (root, path), charset);  }
         catch (FileNotFoundException e)  {  return null;  }
     }
 }

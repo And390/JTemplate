@@ -75,6 +75,22 @@ public abstract class TemplateManager
         return true;
     }
 
+    public String eval(String path, Bindings bindings) throws Exception
+    {
+        StringList result = new StringList();
+        eval(path, bindings, result);
+        return result.toString();
+    }
+
+    public String evalIfExists(String path, Bindings bindings) throws Exception
+    {
+        Template template = getTemplate(path);
+        if (template==null)  return null;
+        StringList result = new StringList();
+        template.eval(bindings, result);
+        return result.toString();
+    }
+
     // A little more usefull than new SimpleBindings(). For Nashorn it provide a values reading after eval()
     public static Bindings createBindings()  {  return getEngine().createBindings();  }
 
@@ -109,7 +125,7 @@ public abstract class TemplateManager
 
     private static Template parse(String content, int[] pos, TemplateManager manager, String path) throws ScriptException
     {
-        StringList buffer = new StringList(initScript);
+        StringBuilder buffer = new StringBuilder(initScript);
         ArrayList<Template> childs = null;
         ArrayList<String> strings = new ArrayList<> ();
 

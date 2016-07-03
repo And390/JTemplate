@@ -4,6 +4,7 @@ import ru.and390.utils.FileWatcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * В дополнение к FileTemplateManager мониторит заданный каталог, выгружая измененные шаблоны из кэша
@@ -15,7 +16,12 @@ public class WatchFileTemplateManager extends FileTemplateManager implements Aut
 
     public WatchFileTemplateManager(File file, String encoding) throws IOException
     {
-        super(file, encoding);
+        this(file, Charset.forName(encoding));
+    }
+
+    public WatchFileTemplateManager(File file, Charset charset) throws IOException
+    {
+        super(file, charset);
         watcher = new FileWatcher (file.getPath());
         watcher.addListener(new FileWatcher.Listener ()  {
             public void changed(String path)  {

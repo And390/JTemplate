@@ -1,6 +1,7 @@
 package ru.and390.utils;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -269,7 +270,7 @@ public class ByteArray {
     public void provide(int count)  {  count+=size;  if (data.length<count)  data=realloc(data, count);  }
 
     public String toString(String encoding) throws UnsupportedEncodingException  {  return new String (data, 0, size, encoding);  }
-    public String toString(int offset, String encoding) throws UnsupportedEncodingException  {  return new String (data, offset, size-offset, encoding);  }
+    public String toString(int offset, Charset charset) throws UnsupportedEncodingException  {  return new String (data, offset, size-offset, charset);  }
 
     //----------------        io        ----------------
 
